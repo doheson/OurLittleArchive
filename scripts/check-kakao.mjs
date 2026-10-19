@@ -77,9 +77,16 @@ async function checkMapSdk() {
     record("지도 SDK", true, `정상 (${text.length} bytes)`);
     return;
   }
-  const fix = text.includes("domain mismatched")
-    ? `콘솔 > 앱 선택 > [플랫폼] > [Web] 에 ${DOMAIN} 을 등록한다`
-    : "JavaScript 키가 맞는지 확인한다";
+  // 지도 SDK 도 카카오맵이 꺼져 있으면 도메인과 무관하게 거부된다.
+  // 도메인을 막 등록하고 나면 오류가 여기로 바뀌므로 따로 구분한다.
+  let fix;
+  if (text.includes("OPEN_MAP_AND_LOCAL")) {
+    fix = "콘솔 > 내 애플리케이션 > 앱 선택 > [카카오맵] > [사용 설정] 을 ON 으로";
+  } else if (text.includes("domain mismatched")) {
+    fix = `콘솔 > 앱 선택 > [플랫폼] > [Web] 에 ${DOMAIN} 을 등록한다`;
+  } else {
+    fix = "JavaScript 키가 맞는지 확인한다";
+  }
   record("지도 SDK", false, `HTTP ${res.status} ${text.slice(0, 120)}`, fix);
 }
 
