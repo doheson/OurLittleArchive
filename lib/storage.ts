@@ -81,6 +81,17 @@ export function isCloudStorageConfigured(): boolean {
   return readS3Config() !== null;
 }
 
+/**
+ * 사진 업로드를 화면에 보여줄지.
+ *
+ * 운영에서 클라우드 저장소가 없으면 업로드가 거부되므로 버튼 자체를 숨긴다.
+ * 눌러봐야 실패하는 버튼을 두는 것보다 낫다.
+ * 개발에서는 로컬 디스크로 동작하니 그대로 보여준다.
+ */
+export function isPhotoUploadAvailable(): boolean {
+  return isCloudStorageConfigured() || process.env.NODE_ENV !== "production";
+}
+
 let cachedClient: { config: S3Config; client: S3Client } | null = null;
 
 function s3(): { client: S3Client; bucket: string } {

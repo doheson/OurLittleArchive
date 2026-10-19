@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createEntry, updateEntry } from "@/app/actions/entries";
 import { ACTION_IDLE } from "@/lib/action-result";
 import { SUBTITLE_LABELS, THEME_META_FIELDS, type MetaField } from "@/lib/theme-fields";
 import type { EntryStatus, ThemeConfig } from "@/lib/themes";
+import { CoverPicker } from "./cover-picker";
 import { SubmitButton } from "./submit-button";
 
 export type EntryFormDefaults = {
@@ -42,6 +43,12 @@ export function EntryForm({
   const isEdit = Boolean(defaults?.id);
   const [state, formAction] = useActionState(isEdit ? updateEntry : createEntry, ACTION_IDLE);
   const metaFields = THEME_META_FIELDS[theme.key];
+
+  // 커버를 검색으로 고를 수 있게 하려면 제목과 주소를 모두 state 로 들고 있어야 한다.
+  // 제목은 검색어 기본값으로, 주소는 고른 결과를 채워 넣는 칸으로 쓴다.
+  const [title, setTitle] = useState(defaults?.title ?? "");
+  const [coverImageUrl, setCoverImageUrl] = useState(defaults?.coverImageUrl ?? "");
+  const [pickingCover, setPickingCover] = useState(false);
 
   return (
     <form action={formAction} className="space-y-5">
@@ -98,7 +105,8 @@ export function EntryForm({
           name="title"
           required
           maxLength={200}
-          defaultValue={defaults?.title ?? ""}
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
           className={fieldClass}
         />
       </Field>
@@ -144,14 +152,53 @@ export function EntryForm({
         </div>
       )}
 
-      <Field label="커버 이미지 주소" hint="음악과 책은 검색으로 등록하면 자동으로 채워진다">
-        <input
-          name="coverImageUrl"
-          type="url"
-          defaultValue={defaults?.coverImageUrl ?? ""}
-          className={fieldClass}
-        />
-      </Field>
+      <div>
+        <div className="mb-1 flex items-baseline justify-between gap-2">
+          <span className="text-sm font-semibold text-ink-muted">커버 이미지</span>
+          <button
+            type="button"
+            onClick={() => setPickingCover((open) => !open)}
+            className="text-sm text-accent hover:underline"
+          >
+            {pickingCover ? "검색 닫기" : "이미지 찾기"}
+          </button>
+        </div>
+
+        <div className="flex items-start gap-3">
+          {coverImageUrl && (
+            // 고른 이미지를 바로 확인할 수 있게 한다. 호스트가 제각각이라 일반 img 를 쓴다.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={coverImageUrl}
+              alt=""
+              className="size-16 shrink-0 rounded-lg border border-border bg-surface-muted object-cover"
+            />
+          )}
+          <input
+            name="coverImageUrl"
+            type="url"
+            value={coverImageUrl}
+            onChange={(event) => setCoverImageUrl(event.target.value)}
+            placeholder="주소를 직접 넣어도 된다"
+            className={fieldClass}
+          />
+        </div>
+
+        <span className="mt-1 block text-xs text-ink-muted">
+          음악과 책은 검색으로 등록하면 자동으로 채워진다.
+        </span>
+
+        {pickingCover && (
+          <CoverPicker
+            defaultTerm={[title, theme.label].filter(Boolean).join(" ")}
+            onPick={(url) => {
+              setCoverImageUrl(url);
+              setPickingCover(false);
+            }}
+            onClose={() => setPickingCover(false)}
+          />
+        )}
+      </div>
 
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink-muted">

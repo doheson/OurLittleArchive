@@ -9,6 +9,7 @@ import { markPlaceVisited } from "@/app/actions/places";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getEntry } from "@/lib/entries";
+import { isPhotoUploadAvailable } from "@/lib/storage";
 import { THEME_META_FIELDS } from "@/lib/theme-fields";
 import { THEMES } from "@/lib/themes";
 import { formatKoreanDate } from "@/lib/date";
@@ -256,7 +257,7 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
         />
       )}
 
-      {theme.hasPhotos && (
+      {theme.hasPhotos && (isPhotoUploadAvailable() || entry.photos.length > 0) && (
         <PhotoManager
           entryId={entry.id}
           photos={entry.photos.map((photo) => ({
@@ -266,7 +267,7 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
             height: photo.height,
             caption: photo.caption,
           }))}
-          canEdit={Boolean(user)}
+          canEdit={Boolean(user) && isPhotoUploadAvailable()}
         />
       )}
     </div>
