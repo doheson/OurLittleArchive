@@ -24,7 +24,7 @@ export function RatingPanel({
   const scoreOf = (userId: string) => ratings.find((r) => r.userId === userId)?.score ?? null;
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4">
+    <section className="card rounded-xl p-4">
       <h2 className="mb-3 text-sm font-semibold text-ink-muted">평점</h2>
 
       <ul className="space-y-3">

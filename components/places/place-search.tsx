@@ -81,7 +81,7 @@ export function PlaceSearch({ defaultBucket }: { defaultBucket: string }) {
           {shown.places.map((place) => (
             <li
               key={place.placeId}
-              className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3"
+              className="flex items-start gap-3 card rounded-xl p-3"
             >
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">{place.name}</p>
@@ -164,7 +164,7 @@ function PickedPlaceForm({
       <input type="hidden" name="lng" value={place.lng} />
       <input type="hidden" name="placeUrl" value={place.placeUrl ?? ""} />
 
-      <div className="rounded-xl border border-border bg-surface p-4">
+      <div className="card rounded-xl p-4">
         <p className="font-medium">{place.name}</p>
         {place.category && <p className="text-sm text-ink-muted">{place.category}</p>}
         <p className="text-sm text-ink-muted">{place.roadAddress ?? place.address}</p>

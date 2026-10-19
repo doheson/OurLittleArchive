@@ -71,6 +71,6 @@ export const SUBTITLE_LABELS: Record<ThemeKey, string> = {
   ESCAPE_ROOM: "업체 / 지점",
   BOOK: "저자",
   BOARD_GAME: "퍼블리셔",
-  MURDER_MYSTERY: "공연장",
+  MURDER_MYSTERY: "퍼블리셔 / 제작",
   PLACE: "한 줄 설명",
 };

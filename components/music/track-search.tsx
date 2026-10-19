@@ -80,7 +80,7 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
           {shown.tracks.map((track) => (
             <li
               key={track.trackId}
-              className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3"
+              className="flex items-center gap-3 card rounded-xl p-3"
             >
               {/* iTunes CDN 이미지. 썸네일 한 장이라 일반 img 로 충분하다. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -141,7 +141,7 @@ function PickedTrackForm({
       <input type="hidden" name="genre" value={track.genre ?? ""} />
       <input type="hidden" name="releasedAt" value={track.releasedAt ?? ""} />
 
-      <div className="flex items-center gap-4 rounded-xl border border-border bg-surface p-4">
+      <div className="flex items-center gap-4 card rounded-xl p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={track.artworkUrl ?? ""}

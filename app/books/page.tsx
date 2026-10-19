@@ -88,7 +88,7 @@ export default async function BooksPage({
         <h2 className="mb-3 text-sm font-semibold text-ink-muted">추천 코너</h2>
 
         {recommended ? (
-          <div className="flex gap-4 rounded-2xl border border-border bg-surface p-5">
+          <div className="flex gap-4 card rounded-2xl p-5">
             {recommended.entry.coverImageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img

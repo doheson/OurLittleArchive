@@ -42,7 +42,7 @@ export function ParticipationPanel({
   const [role, setRole] = useState(me?.role ?? "");
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4">
+    <section className="card rounded-xl p-4">
       <h2 className="mb-3 text-sm font-semibold text-ink-muted">누가 해봤는지</h2>
 
       <ul className="space-y-2">

@@ -38,7 +38,7 @@ export function ReviewPanel({
   const myReview = currentUserId ? reviews.find((r) => r.userId === currentUserId) : undefined;
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4">
+    <section className="card rounded-xl p-4">
       <h2 className="mb-3 text-sm font-semibold text-ink-muted">감상평</h2>
 
       <ul className="space-y-3">

@@ -27,7 +27,7 @@ function readSeedUser(suffix: "A" | "B", fallbackSlug: string, fallbackName: str
 }
 
 async function main() {
-  const users = [readSeedUser("A", "zeons", "나"), readSeedUser("B", "partner", "너")];
+  const users = [readSeedUser("A", "dohee", "도희"), readSeedUser("B", "hakyung", "하경")];
 
   if (users[0].slug === users[1].slug) {
     throw new Error("두 계정의 SLUG 가 같다. 서로 다르게 설정한다.");

@@ -22,7 +22,7 @@ export function MusicPanel({
   if (!previewUrl && !youtube && !spotify && !appleUrl) return null;
 
   return (
-    <section className="space-y-4 rounded-xl border border-border bg-surface p-4">
+    <section className="space-y-4 card rounded-xl p-4">
       <h2 className="text-sm font-semibold text-ink-muted">듣기</h2>
 
       {previewUrl && (

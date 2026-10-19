@@ -41,7 +41,7 @@ export function FavoriteBoard({
         return (
           <section
             key={column.userId}
-            className="rounded-xl border border-border bg-surface p-4"
+            className="card rounded-xl p-4"
           >
             <h3 className="mb-3 text-sm font-semibold">
               {column.displayName}의 베스트

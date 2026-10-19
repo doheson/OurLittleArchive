@@ -190,7 +190,7 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
       </header>
 
       {metaRows.length > 0 && (
-        <section className="rounded-xl border border-border bg-surface p-4">
+        <section className="card rounded-xl p-4">
           <h2 className="mb-3 text-sm font-semibold text-ink-muted">{theme.label} 정보</h2>
           <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
             {metaRows.map((row) => (
@@ -204,7 +204,7 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
       )}
 
       {entry.note && (
-        <section className="rounded-xl border border-border bg-surface p-4">
+        <section className="card rounded-xl p-4">
           <h2 className="mb-2 text-sm font-semibold text-ink-muted">메모</h2>
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{entry.note}</p>
         </section>

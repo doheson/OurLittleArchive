@@ -20,7 +20,7 @@ export function EntryCard({ entry }: { entry: EntryView }) {
   return (
     <Link
       href={`/entry/${entry.id}`}
-      className="group flex gap-3 rounded-xl border border-border bg-surface p-3 transition-colors hover:border-accent"
+      className="group flex gap-3 card-interactive rounded-xl p-3"
     >
       <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-surface-muted">
         {!cover ? (

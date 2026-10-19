@@ -36,16 +36,16 @@ export function PlayedBoard({
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {columns.map((column) => (
-        <section key={column.userId} className="rounded-xl border border-border bg-surface p-4">
+        <section key={column.userId} className="card rounded-xl p-4">
           <h3 className="mb-3 flex items-baseline justify-between gap-2 text-sm font-semibold">
             {/*
               조사를 붙이지 않는다. 받침에 따라 이/가가 달라지고
               "나/너" 같은 대명사는 "내가/네가" 로 불규칙하게 바뀌어서,
               이름이 무엇이든 깨지지 않으려면 조사를 안 쓰는 편이 안전하다.
             */}
-            <span>{column.displayName} · 해본 공연</span>
+            <span>{column.displayName} · 해본 작품</span>
             <span className="text-xs font-normal text-ink-muted tabular-nums">
-              {column.items.length}편
+              {column.items.length}개
             </span>
           </h3>
 

@@ -225,19 +225,21 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     key: "MURDER_MYSTERY",
     slug: "murder",
     label: "머더미스터리",
-    tagline: "각자 해본 공연과, 같이 하고 싶은 공연",
-    statusLabels: { DONE: "플레이한 공연", WISHLIST: "같이 하고 싶은 공연" },
+    tagline: "각자 해본 작품과, 같이 해보고 싶은 작품",
+    statusLabels: { DONE: "해본 작품", WISHLIST: "같이 하고 싶은 작품" },
     hasRating: true,
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
     hasDate: true,
-    hasLocation: true,
+    // 보드게임의 한 종류라 장소를 따로 적지 않는다. 어디서 했는지가 아니라
+    // 어떤 작품을 누가 했는지가 중요하다.
+    hasLocation: false,
     hasPhotos: true,
-    // 한쪽만 해본 공연이 많은 테마라 각자 기록을 구분해 보여준다.
+    // 한쪽만 해본 작품이 많은 테마라 각자 기록을 구분해 보여준다.
     tracksPerPerson: true,
     tracksRole: true,
-    // 스포일러가 가장 민감한 테마. 감상평은 기본적으로 가린다.
+    // 진범을 찾아가는 놀이라 스포일러가 가장 민감하다. 감상평은 기본적으로 가린다.
     spoilerSensitive: true,
   },
   PLACE: {

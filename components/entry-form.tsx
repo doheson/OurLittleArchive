@@ -224,7 +224,7 @@ export function EntryForm({
       </fieldset>
 
       {metaFields.length > 0 && (
-        <fieldset className="rounded-xl border border-border bg-surface p-4">
+        <fieldset className="card rounded-xl p-4">
           <legend className="px-1 text-sm font-semibold text-ink-muted">
             {theme.label} 정보
           </legend>

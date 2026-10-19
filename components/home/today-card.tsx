@@ -31,7 +31,7 @@ export function TodayCard({
     coverShape === "square" ? "size-24 rounded-lg" : "h-32 w-22 rounded";
 
   return (
-    <section className="flex gap-4 rounded-2xl border border-border bg-surface p-4">
+    <section className="flex gap-4 card rounded-2xl p-4">
       {coverImageUrl && (
         // 외부 CDN 주소라 일반 img 로 그린다.
         // eslint-disable-next-line @next/next/no-img-element

@@ -12,7 +12,8 @@ export const metadata: Metadata = { title: "머더미스터리" };
 const THEME = THEMES.MURDER_MYSTERY;
 
 /**
- * 머더미스터리는 "각자 해본 것" 이 주인공이라 전용 화면을 쓴다.
+ * 머더미스터리는 보드게임의 한 종류다. 서로 밀담을 나누며 진범을 찾아간다.
+ * "각자 해본 것" 이 주인공이라 전용 화면을 쓴다.
  * 한쪽만 해본 작품이 많아서 사람별로 칸을 나눠 보여주고,
  * 같이 하고 싶은 목록은 아래에 따로 둔다.
  */
@@ -56,25 +57,25 @@ export default async function MurderPage() {
             href="/murder/new"
             className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
-            공연 추가
+            작품 추가
           </Link>
         )}
       </header>
 
       <section>
         <h2 className="mb-3 text-sm font-semibold text-ink-muted">
-          각자 해본 공연
+          각자 해본 작품
           <span className="ml-1.5 tabular-nums opacity-70">{counts.DONE}</span>
         </h2>
         <PlayedBoard
           columns={columns}
-          emptyHint="공연 상세에서 '나도 해봤음' 을 누르면 여기에 쌓인다."
+          emptyHint="작품 상세에서 '나도 해봤음' 을 누르면 여기에 쌓인다."
         />
 
         {unassigned.length > 0 && (
           <div className="mt-4">
             <p className="mb-2 text-xs text-ink-muted">
-              누가 했는지 아직 표시하지 않은 공연
+              누가 했는지 아직 표시하지 않은 작품
             </p>
             <ul className="space-y-2">
               {unassigned.map((entry) => (

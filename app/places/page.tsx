@@ -4,7 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { countPlaceBuckets, listEntries } from "@/lib/entries";
 import { THEMES } from "@/lib/themes";
 import { EntryCard } from "@/components/entry-card";
-import { PlaceMap, type MapPin } from "@/components/places/place-map";
+import type { MapPin } from "@/components/places/place-map";
+import { PlaceMapToggle } from "@/components/places/place-map-toggle";
 
 export const metadata: Metadata = { title: "공간" };
 
@@ -42,15 +43,11 @@ export default async function PlacesPage({
     ),
   ]);
 
-  // 좌표가 있는 것만 지도에 찍는다. 직접 입력한 장소는 좌표가 없을 수 있다.
-  const pins: MapPin[] = entries
-    .filter((entry) => entry.lat != null && entry.lng != null)
-    .map((entry) => ({
-      id: entry.id,
-      name: entry.title,
-      lat: entry.lat as number,
-      lng: entry.lng as number,
-    }));
+  // 좌표가 있는 장소만 지도를 펼 수 있다. 직접 입력한 장소는 좌표가 없을 수 있다.
+  const pinFor = (entry: (typeof entries)[number]): MapPin | null =>
+    entry.lat != null && entry.lng != null
+      ? { id: entry.id, name: entry.title, lat: entry.lat, lng: entry.lng }
+      : null;
 
   const jsKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY?.trim() || null;
 
@@ -88,19 +85,21 @@ export default async function PlacesPage({
         ))}
       </nav>
 
-      <PlaceMap pins={pins} appKey={jsKey} />
-
       {entries.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-ink-muted">
           아직 없다.
         </p>
       ) : (
-        <ul className="space-y-2">
-          {entries.map((entry) => (
-            <li key={entry.id}>
-              <EntryCard entry={entry} />
-            </li>
-          ))}
+        <ul className="space-y-3">
+          {entries.map((entry) => {
+            const pin = pinFor(entry);
+            return (
+              <li key={entry.id}>
+                <EntryCard entry={entry} />
+                {pin && <PlaceMapToggle pin={pin} appKey={jsKey} />}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

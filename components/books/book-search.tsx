@@ -82,7 +82,7 @@ export function BookSearch({
           {shown.books.map((book) => (
             <li
               key={book.isbn}
-              className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3"
+              className="flex items-start gap-3 card rounded-xl p-3"
             >
               {/* 카카오 CDN 표지. 썸네일 한 장이라 일반 img 로 충분하다. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -175,7 +175,7 @@ function PickedBookForm({
       <input type="hidden" name="thumbnail" value={book.thumbnail ?? ""} />
       <input type="hidden" name="publishedAt" value={book.publishedAt ?? ""} />
 
-      <div className="flex gap-4 rounded-xl border border-border bg-surface p-4">
+      <div className="flex gap-4 card rounded-xl p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={book.thumbnail ?? ""}

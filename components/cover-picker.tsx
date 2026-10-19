@@ -43,7 +43,7 @@ export function CoverPicker({
   }, [term, tooShort]);
 
   return (
-    <div className="mt-2 space-y-3 rounded-xl border border-border bg-surface p-3">
+    <div className="mt-2 space-y-3 card rounded-xl p-3">
       <div className="flex items-center gap-2">
         <input
           value={term}

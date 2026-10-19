@@ -36,7 +36,7 @@ export function BookCard({
   currentUserId: string | null;
 }) {
   return (
-    <article className="flex gap-4 rounded-xl border border-border bg-surface p-4">
+    <article className="flex gap-4 card rounded-xl p-4">
       <Link href={`/entry/${book.id}`} className="shrink-0">
         {book.coverImageUrl ? (
           // 카카오 CDN 표지. 임의 주소도 들어올 수 있어 일반 img 로 그린다.

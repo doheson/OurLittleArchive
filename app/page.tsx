@@ -141,7 +141,7 @@ export default async function HomePage() {
               <li key={theme.key}>
                 <Link
                   href={`/${theme.slug}`}
-                  className="block rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent"
+                  className="block card-interactive rounded-xl p-4"
                 >
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="font-medium">{theme.label}</span>

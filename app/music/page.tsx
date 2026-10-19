@@ -62,7 +62,7 @@ export default async function MusicPage({
 
       {/* 오늘의 한 곡 */}
       {today ? (
-        <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <section className="card overflow-hidden rounded-2xl">
           <div className="flex flex-col gap-5 p-5 sm:flex-row">
             {today.entry.coverImageUrl && (
               // iTunes CDN 의 정사각 앨범 이미지

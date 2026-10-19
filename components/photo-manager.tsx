@@ -34,7 +34,7 @@ export function PhotoManager({
   if (!photos.length && !canEdit) return null;
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4">
+    <section className="card rounded-xl p-4">
       <h2 className="mb-3 text-sm font-semibold text-ink-muted">사진</h2>
 
       {photos.length > 0 && (
