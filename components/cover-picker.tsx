@@ -68,7 +68,7 @@ export function CoverPicker({
 
       {shown.status === "ok" && shown.covers.length === 0 && (
         <p className="text-sm text-ink-muted">
-          쓸 만한 이미지가 없다. 검색어를 바꿔보거나 주소를 직접 넣는다.
+          쓸 만한 이미지가 없어요. 검색어를 바꾸거나 주소를 직접 넣어 보세요.
         </p>
       )}
 
@@ -96,7 +96,7 @@ export function CoverPicker({
             ))}
           </ul>
           <p className="text-xs text-ink-muted">
-            웹에서 찾은 이미지다. 눌러서 고르면 주소가 채워진다.
+            웹에서 찾은 이미지예요. 누르면 주소가 채워져요.
           </p>
         </>
       )}

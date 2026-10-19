@@ -108,7 +108,7 @@ export default async function MusicPage({
         </section>
       ) : (
         <section className="rounded-2xl border border-dashed border-border p-8 text-center">
-          <p className="text-sm text-ink-muted">오늘 고른 곡이 아직 없다.</p>
+          <p className="text-sm text-ink-muted">오늘 고른 곡이 아직 없어요.</p>
           {user && (
             <Link
               href="/music/pick?daily=1"
@@ -173,7 +173,7 @@ export default async function MusicPage({
 
         {entries.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-ink-muted">
-            아직 없다.
+            아직 없어요.
           </p>
         ) : (
           <ul className="space-y-2">

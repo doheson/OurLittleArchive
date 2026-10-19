@@ -25,7 +25,7 @@ export const THEME_META_FIELDS: Record<ThemeKey, MetaField[]> = {
     // 검색 연동을 붙이면 meta.artist 는 자동으로 채워진다.
     { name: "album", label: "앨범", type: "text" },
     { name: "genre", label: "장르", type: "text" },
-    { name: "spotifyUrl", label: "Spotify 링크", type: "text", hint: "임베드 재생에 쓴다" },
+    { name: "spotifyUrl", label: "Spotify 링크", type: "text", hint: "여기에 넣으면 전곡을 들을 수 있어요" },
     { name: "youtubeUrl", label: "YouTube 링크", type: "text" },
   ],
   ESCAPE_ROOM: [
@@ -38,7 +38,7 @@ export const THEME_META_FIELDS: Record<ThemeKey, MetaField[]> = {
   ],
   BOOK: [
     // authors 도 부제 칸과 겹쳐서 폼에서는 뺐다. 책 검색 연동이 채운다.
-    { name: "translators", label: "역자", type: "list", hint: "여러 명이면 쉼표로 구분한다" },
+    { name: "translators", label: "역자", type: "list", hint: "여러 명이면 쉼표로 구분해 주세요" },
     { name: "publisher", label: "출판사", type: "text" },
     { name: "isbn", label: "ISBN", type: "text" },
     { name: "pageCount", label: "쪽수", type: "number", min: 1, step: 1 },

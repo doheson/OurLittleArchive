@@ -42,7 +42,7 @@ function dateOrNull(value: FormDataEntryValue | null): Date | null {
 }
 
 /**
- * meta.* 로 들어온 폼 값을 테마 스키마가 받을 수 있는 타입으로 바꾼다.
+ * meta.* 로 들어온 폼 값을 테마 스키마가 받을 수 있는 타입으로 바꿔요.
  *
  * 폼은 모든 값을 문자열로 보내지만 meta 스키마는 number/boolean/배열을 요구한다.
  * 값의 모양을 보고 추측하면 저자 한 명("김영하")이 배열이 안 되는 식으로 틀리므로,
@@ -91,7 +91,7 @@ export const entryInputSchema = z
     theme: themeKeySchema,
     status: entryStatusSchema,
     subCategory: z.string().max(40).nullable(),
-    title: z.string().min(1, "제목은 비워둘 수 없다.").max(200),
+    title: z.string().min(1, "제목은 비워둘 수 없어요.").max(200),
     subtitle: z.string().max(200).nullable(),
     note: z.string().max(5000).nullable(),
     coverImageUrl: z.string().url().max(2000).nullable(),
@@ -108,14 +108,14 @@ export const entryInputSchema = z
   })
   .refine((value) => isValidSubCategory(value.theme, value.subCategory), {
     path: ["subCategory"],
-    error: "이 테마에서 쓸 수 없는 분류다.",
+    error: "이 테마에서는 쓸 수 없는 분류예요.",
   })
   .refine(
     (value) =>
       // 외부 출처를 쓸 때는 식별자가 같이 있어야 중복 등록을 막을 수 있다.
       (value.externalSource == null) === (value.externalId == null) ||
       value.externalSource === "MANUAL",
-    { path: ["externalId"], error: "외부 출처와 식별자는 함께 있어야 한다." },
+    { path: ["externalId"], error: "외부 출처와 식별자는 함께 있어야 해요." },
   );
 
 export type EntryInput = z.infer<typeof entryInputSchema>;
@@ -163,7 +163,7 @@ export const ratingSchema = z.object({
 
 export const reviewSchema = z.object({
   entryId: z.string().min(1),
-  body: z.string().min(1, "감상평을 입력한다.").max(5000),
+  body: z.string().min(1, "감상평을 입력해 주세요.").max(5000),
   isSpoiler: z.boolean(),
 });
 

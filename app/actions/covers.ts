@@ -19,6 +19,6 @@ export async function searchCoverImages(rawTerm: string): Promise<CoverSearchSta
       return { status: "error", term, error: error.message, needsSetup: error.needsSetup };
     }
     console.error("[searchCoverImages]", error);
-    return { status: "error", term, error: "이미지 검색에 실패했다.", needsSetup: false };
+    return { status: "error", term, error: "이미지 검색에 실패했어요.", needsSetup: false };
   }
 }

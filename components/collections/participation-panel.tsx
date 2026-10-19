@@ -82,7 +82,7 @@ export function ParticipationPanel({
                 value={role}
                 onChange={(event) => setRole(event.target.value)}
                 maxLength={100}
-                placeholder="비워두고 눌러도 된다"
+                placeholder="비워두고 눌러도 돼요"
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
               />
             </label>
@@ -102,7 +102,7 @@ export function ParticipationPanel({
 
           {me?.joined && tracksRole && role.trim() && (
             <p className="text-xs text-ink-muted">
-              기록에서 빼려면 역할 칸을 비우고 다시 누른다.
+              기록에서 빼려면 역할 칸을 비우고 다시 눌러 주세요.
             </p>
           )}
         </form>

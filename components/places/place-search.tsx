@@ -73,7 +73,7 @@ export function PlaceSearch({ defaultBucket }: { defaultBucket: string }) {
         ))}
 
       {shown.status === "ok" && shown.places.length === 0 && (
-        <p className="text-sm text-ink-muted">결과가 없다. 동네 이름을 같이 넣어보자.</p>
+        <p className="text-sm text-ink-muted">결과가 없어요. 동네 이름을 같이 넣어 보세요.</p>
       )}
 
       {shown.status === "ok" && shown.places.length > 0 && (
@@ -123,16 +123,16 @@ function KakaoMapSetupNotice({ message }: { message: string }) {
           >
             내 애플리케이션
           </a>{" "}
-          에서 앱을 연다
+          에서 앱을 열어요
         </li>
         <li>
           좌측 <span className="text-ink">카카오맵 &gt; 사용 설정</span> 에서 상태를{" "}
-          <span className="text-ink">ON</span> 으로 바꾼다
+          <span className="text-ink">ON</span> 으로 바꿔요
         </li>
-        <li>개발 서버를 다시 시작할 필요는 없다. 바로 다시 검색하면 된다</li>
+        <li>개발 서버를 다시 시작하지 않아도 돼요. 바로 다시 검색해 보세요</li>
       </ol>
       <p className="text-ink-muted">
-        무료 쿼터는 계정에서 처음 카카오맵을 켠 앱에만 주어진다.
+        무료 쿼터는 계정에서 처음 카카오맵을 켠 앱에만 주어져요.
       </p>
     </div>
   );

@@ -96,7 +96,7 @@ function ReaderRow({ reader, isMe }: { reader: ReaderView; isMe: boolean }) {
             onClick={() => setHidden(false)}
             className="mt-1 w-full rounded border border-dashed border-border bg-surface-muted px-2 py-1.5 text-left text-xs text-ink-muted transition-colors hover:text-ink"
           >
-            스포일러가 있다. 눌러서 보기
+            스포일러가 있어요. 눌러서 보기
           </button>
         ) : (
           <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-ink-muted">

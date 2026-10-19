@@ -28,7 +28,7 @@ export default async function PickPlacePage({
         <div>
           <h1 className="text-xl font-semibold tracking-tight">장소 찾기</h1>
           <p className="mt-1 text-sm text-ink-muted">
-            검색해서 고르면 주소와 좌표가 같이 저장되어 지도에 찍힌다.
+            검색해서 고르면 주소와 좌표가 같이 저장돼서 지도에 표시돼요.
           </p>
         </div>
         <Link

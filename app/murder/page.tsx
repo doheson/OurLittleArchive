@@ -69,7 +69,7 @@ export default async function MurderPage() {
         </h2>
         <PlayedBoard
           columns={columns}
-          emptyHint="작품 상세에서 '나도 해봤음' 을 누르면 여기에 쌓인다."
+          emptyHint="작품 상세에서 ‘나도 해봤음’을 누르면 여기에 쌓여요."
         />
 
         {unassigned.length > 0 && (
@@ -96,7 +96,7 @@ export default async function MurderPage() {
 
         {wishlist.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-ink-muted">
-            아직 없다.
+            아직 없어요.
           </p>
         ) : (
           <ul className="space-y-2">

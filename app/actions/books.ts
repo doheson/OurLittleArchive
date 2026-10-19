@@ -25,7 +25,7 @@ export async function searchBooksAction(rawTerm: string): Promise<BookSearchStat
       return { status: "error", term, error: error.message, needsSetup: error.needsSetup };
     }
     console.error("[searchBooksAction]", error);
-    return { status: "error", term, error: "책 검색에 실패했다.", needsSetup: false };
+    return { status: "error", term, error: "책 검색에 실패했어요.", needsSetup: false };
   }
 }
 

@@ -179,13 +179,13 @@ export function EntryForm({
             type="url"
             value={coverImageUrl}
             onChange={(event) => setCoverImageUrl(event.target.value)}
-            placeholder="주소를 직접 넣어도 된다"
+            placeholder="주소를 직접 넣어도 돼요"
             className={fieldClass}
           />
         </div>
 
         <span className="mt-1 block text-xs text-ink-muted">
-          음악과 책은 검색으로 등록하면 자동으로 채워진다.
+          음악과 책은 검색으로 등록하면 자동으로 채워져요.
         </span>
 
         {pickingCover && (
@@ -236,7 +236,7 @@ export function EntryForm({
         </fieldset>
       )}
 
-      <Field label="메모" hint="둘이 함께 보는 메모다. 개인 감상평은 상세 화면에서 따로 남긴다">
+      <Field label="메모" hint="둘이 함께 보는 메모예요. 각자의 감상평은 상세 화면에서 따로 남겨요">
         <textarea
           name="note"
           rows={3}

@@ -74,7 +74,7 @@ export default async function BoardGamesPage({
         <FavoriteBoard
           columns={columns}
           currentUserId={user?.id ?? null}
-          emptyHint="게임 상세에서 '내 베스트에 넣기' 를 누르면 여기에 쌓인다."
+          emptyHint="게임 상세에서 ‘내 베스트에 넣기’를 누르면 여기에 쌓여요."
         />
       </section>
 
@@ -98,7 +98,7 @@ export default async function BoardGamesPage({
 
         {entries.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-ink-muted">
-            아직 없다.
+            아직 없어요.
           </p>
         ) : (
           <ul className="space-y-2">

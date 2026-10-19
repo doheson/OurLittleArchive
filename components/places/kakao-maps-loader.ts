@@ -55,7 +55,7 @@ export function loadKakaoMaps(appKey: string): Promise<KakaoMapsApi> {
 
   loading = new Promise<KakaoMapsApi>((resolve, reject) => {
     if (typeof window === "undefined") {
-      reject(new Error("브라우저에서만 불러올 수 있다."));
+      reject(new Error("브라우저에서만 불러올 수 있어요."));
       return;
     }
 
@@ -69,7 +69,7 @@ export function loadKakaoMaps(appKey: string): Promise<KakaoMapsApi> {
     const onReady = () => {
       const api = window.kakao?.maps;
       if (!api) {
-        reject(new Error("지도 SDK 를 불러오지 못했다."));
+        reject(new Error("지도를 불러오지 못했어요."));
         return;
       }
       // autoload=false 로 받았으므로 여기서 직접 준비시킨다.
@@ -81,7 +81,7 @@ export function loadKakaoMaps(appKey: string): Promise<KakaoMapsApi> {
       already.addEventListener("load", onReady, { once: true });
       already.addEventListener(
         "error",
-        () => reject(new Error("지도 SDK 를 불러오지 못했다.")),
+        () => reject(new Error("지도를 불러오지 못했어요.")),
         { once: true },
       );
       return;
@@ -99,7 +99,7 @@ export function loadKakaoMaps(appKey: string): Promise<KakaoMapsApi> {
       () => {
         // 다음 시도에서 다시 받을 수 있도록 약속을 비운다.
         loading = null;
-        reject(new Error("지도 SDK 를 불러오지 못했다. 도메인이 등록됐는지 확인한다."));
+        reject(new Error("지도를 불러오지 못했어요. 도메인이 등록됐는지 확인한다."));
       },
       { once: true },
     );

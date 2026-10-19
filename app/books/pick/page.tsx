@@ -29,7 +29,7 @@ export default async function PickBookPage({
         <div>
           <h1 className="text-xl font-semibold tracking-tight">책 고르기</h1>
           <p className="mt-1 text-sm text-ink-muted">
-            검색해서 고르면 표지와 저자 정보가 같이 저장된다.
+            검색해서 고르면 표지와 저자 정보가 같이 저장돼요.
           </p>
         </div>
         <Link
@@ -42,8 +42,7 @@ export default async function PickBookPage({
 
       {!isBookSearchConfigured() && (
         <p className="rounded-lg border border-border bg-surface-muted px-4 py-3 text-sm text-ink-muted">
-          카카오 키가 아직 설정되지 않아 검색이 동작하지 않는다. 검색창에 두 글자 이상 입력하면
-          발급 방법이 나온다.
+          카카오 키가 아직 없어서 검색이 안 돼요. 검색창에 두 글자 이상 입력하면 발급 방법을 알려드려요.
         </p>
       )}
 

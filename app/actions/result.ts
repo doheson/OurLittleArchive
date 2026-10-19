@@ -26,12 +26,12 @@ export async function runAction(fn: () => Promise<void | string>): Promise<Actio
     if (error instanceof AuthError) return { ok: false, error: error.message };
     if (error instanceof UploadError) return { ok: false, error: error.message };
     if (error instanceof z.ZodError) {
-      return { ok: false, error: error.issues[0]?.message ?? "입력값을 확인한다." };
+      return { ok: false, error: error.issues[0]?.message ?? "입력한 내용을 확인해 주세요." };
     }
     if (isUniqueViolation(error)) {
-      return { ok: false, error: "이미 등록된 항목이다." };
+      return { ok: false, error: "이미 등록된 항목이에요." };
     }
     console.error("[action]", error);
-    return { ok: false, error: "처리하지 못했다. 잠시 후 다시 시도한다." };
+    return { ok: false, error: "처리하지 못했어요. 잠시 후 다시 시도해 주세요." };
   }
 }

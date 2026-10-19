@@ -63,7 +63,7 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
           className={fieldClass}
         />
         <span className="mt-1 block text-xs text-ink-muted">
-          한글로 검색해도 찾아준다. 다만 제목은 영어로 올 수 있어서, 고른 뒤 고칠 수 있다.
+          한글로 검색해도 찾아줘요. 다만 제목이 영어로 올 수 있어서, 고른 뒤에 고칠 수 있어요.
         </span>
       </label>
 
@@ -72,7 +72,7 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
       {shown.status === "error" && <p className="text-sm text-accent">{shown.error}</p>}
 
       {shown.status === "ok" && shown.tracks.length === 0 && (
-        <p className="text-sm text-ink-muted">결과가 없다. 가수 이름을 같이 넣어보자.</p>
+        <p className="text-sm text-ink-muted">결과가 없어요. 가수 이름을 같이 넣어 보세요.</p>
       )}
 
       {shown.status === "ok" && shown.tracks.length > 0 && (
@@ -163,7 +163,7 @@ function PickedTrackForm({
         <span className="mb-1 block text-sm font-semibold text-ink-muted">제목</span>
         <input name="title" defaultValue={track.title} required maxLength={200} className={fieldClass} />
         <span className="mt-1 block text-xs text-ink-muted">
-          한글 제목으로 바꿔 적어도 된다. 저장할 때 이 제목이 쓰인다.
+          한글 제목으로 바꿔 적어도 돼요. 저장할 때 이 제목이 쓰여요.
         </span>
       </label>
 

@@ -7,7 +7,7 @@
  */
 
 export class AuthError extends Error {
-  constructor(message = "로그인이 필요하다.") {
+  constructor(message = "로그인이 필요해요.") {
     super(message);
     this.name = "AuthError";
   }

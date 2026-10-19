@@ -82,7 +82,7 @@ export function PlaceMap({ pins, appKey }: { pins: MapPin[]; appKey: string | nu
       })
       .catch((cause: unknown) => {
         if (cancelled) return;
-        setError(cause instanceof Error ? cause.message : "지도를 불러오지 못했다.");
+        setError(cause instanceof Error ? cause.message : "지도를 불러오지 못했어요.");
       });
 
     return () => {
@@ -95,8 +95,7 @@ export function PlaceMap({ pins, appKey }: { pins: MapPin[]; appKey: string | nu
       <div className="rounded-xl border border-border bg-surface-muted p-4 text-sm text-ink-muted">
         지도를 보려면 <code className="rounded bg-background px-1">NEXT_PUBLIC_KAKAO_JS_KEY</code>{" "}
         에 카카오 <span className="text-ink">JavaScript 키</span>를 넣고, 콘솔의 [플랫폼] &gt;
-        [Web] 에 <code className="rounded bg-background px-1">http://localhost:3000</code> 을
-        등록한다. REST 키와는 다른 키다.
+        [Web] 에 <code className="rounded bg-background px-1">http://localhost:3000</code> 을 등록해 주세요. REST 키와는 다른 키예요.
       </div>
     );
   }
@@ -104,7 +103,7 @@ export function PlaceMap({ pins, appKey }: { pins: MapPin[]; appKey: string | nu
   if (pins.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-ink-muted">
-        지도에 찍을 장소가 아직 없다.
+        지도에 찍을 장소가 아직 없어요.
       </div>
     );
   }

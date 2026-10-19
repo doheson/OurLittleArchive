@@ -29,7 +29,7 @@ export async function searchMusicTracks(rawTerm: string): Promise<SearchState> {
       return { status: "error", term, error: error.message };
     }
     console.error("[searchMusicTracks]", error);
-    return { status: "error", term, error: "음악 검색에 실패했다." };
+    return { status: "error", term, error: "음악 검색에 실패했어요." };
   }
 }
 

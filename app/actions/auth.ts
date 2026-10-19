@@ -7,8 +7,8 @@ import { createSession, destroySession, verifyPassword } from "@/lib/auth";
 import { runAction, type ActionResult } from "./result";
 
 const loginSchema = z.object({
-  slug: z.string().min(1, "누구인지 선택한다."),
-  password: z.string().min(1, "비밀번호를 입력한다."),
+  slug: z.string().min(1, "누구인지 골라 주세요."),
+  password: z.string().min(1, "비밀번호를 입력해 주세요."),
 });
 
 export async function login(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
@@ -23,7 +23,7 @@ export async function login(_prev: ActionResult, formData: FormData): Promise<Ac
     // 계정이 없을 때도 같은 메시지를 주어 어느 쪽이 틀렸는지 알려주지 않는다.
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
       throw new z.ZodError([
-        { code: "custom", path: ["password"], message: "비밀번호가 맞지 않다.", input: password },
+        { code: "custom", path: ["password"], message: "비밀번호가 맞지 않아요.", input: password },
       ]);
     }
 

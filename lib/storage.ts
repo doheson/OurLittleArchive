@@ -97,7 +97,7 @@ let cachedClient: { config: S3Config; client: S3Client } | null = null;
 function s3(): { client: S3Client; bucket: string } {
   const config = readS3Config();
   if (!config) {
-    throw new UploadError("사진 저장소(S3) 설정이 없다. .env.example 을 참고한다.");
+    throw new UploadError("사진 저장소 설정이 없어요. .env.example 을 참고해 주세요.");
   }
   // 설정이 그대로면 클라이언트를 재사용한다. 요청마다 새로 만들 이유가 없다.
   if (!cachedClient || cachedClient.config.endpoint !== config.endpoint) {
@@ -129,7 +129,7 @@ function uploadRoot(): string {
 function assertStorageUsable(): void {
   if (process.env.NODE_ENV === "production" && !isCloudStorageConfigured()) {
     throw new UploadError(
-      "운영 환경에는 S3 저장소 설정이 필요하다. 로컬 디스크는 배포 후 사라진다.",
+      "운영에서는 사진 저장소 설정이 필요해요. 로컬 디스크는 배포하면 사라져요.",
     );
   }
 }
@@ -178,11 +178,11 @@ export async function putPhoto(file: File): Promise<StoredPhoto> {
   assertStorageUsable();
 
   if (file.size === 0) {
-    throw new UploadError("빈 파일이다.");
+    throw new UploadError("빈 파일이에요.");
   }
   if (file.size > MAX_UPLOAD_BYTES) {
     throw new UploadError(
-      `사진 한 장은 ${Math.floor(MAX_UPLOAD_BYTES / 1024 / 1024)}MB 까지 올릴 수 있다.`,
+      `사진 한 장은 ${Math.floor(MAX_UPLOAD_BYTES / 1024 / 1024)}MB 까지 올릴 수 있어요.`,
     );
   }
   if (file.type && !ACCEPTED_INPUT_MIME.has(file.type)) {
@@ -197,7 +197,7 @@ export async function putPhoto(file: File): Promise<StoredPhoto> {
   try {
     metadata = await image.metadata();
   } catch {
-    throw new UploadError("이미지로 읽을 수 없는 파일이다.");
+    throw new UploadError("이미지로 읽을 수 없는 파일이에요.");
   }
 
   // 움직이는 GIF 는 리사이즈하면 애니메이션이 깨지므로 원본을 그대로 둔다.
@@ -229,7 +229,7 @@ export async function putPhoto(file: File): Promise<StoredPhoto> {
   const width = finalMeta.width ?? 0;
   const height = finalMeta.height ?? 0;
   if (!width || !height) {
-    throw new UploadError("이미지 크기를 읽을 수 없다.");
+    throw new UploadError("이미지 크기를 읽을 수 없어요.");
   }
 
   const key = buildKey(extension);

@@ -38,7 +38,7 @@ async function entryThemeOrThrow(entryId: string): Promise<ThemeKey> {
     select: { theme: true },
   });
   if (!entry) throw new z.ZodError([
-    { code: "custom", path: ["entryId"], message: "항목을 찾을 수 없다.", input: entryId },
+    { code: "custom", path: ["entryId"], message: "항목을 찾을 수 없어요.", input: entryId },
   ]);
   return entry.theme as ThemeKey;
 }
@@ -139,7 +139,7 @@ export async function updateEntry(
     ]);
 
     revalidateEntry(input.theme, entryId);
-    return "저장했다.";
+    return "저장했어요.";
   });
 }
 
@@ -210,7 +210,7 @@ export async function setReview(_prev: ActionResult, formData: FormData): Promis
     });
 
     revalidateEntry(await entryThemeOrThrow(entryId), entryId);
-    return "감상평을 저장했다.";
+    return "감상평을 저장했어요.";
   });
 }
 
@@ -284,7 +284,7 @@ export async function setDailyPick(
     });
 
     revalidateEntry(theme, entryId);
-    return "오늘의 추천을 정했다.";
+    return "오늘의 추천을 정했어요.";
   });
 }
 
@@ -305,7 +305,7 @@ export async function uploadPhotos(
 
     if (!files.length) {
       throw new z.ZodError([
-        { code: "custom", path: ["photos"], message: "올릴 사진을 선택한다.", input: null },
+        { code: "custom", path: ["photos"], message: "올릴 사진을 골라 주세요.", input: null },
       ]);
     }
 
@@ -330,7 +330,7 @@ export async function uploadPhotos(
     }
 
     revalidateEntry(theme, entryId);
-    return `사진 ${files.length}장을 올렸다.`;
+    return `사진 ${files.length}장을 올렸어요.`;
   });
 }
 
@@ -382,18 +382,18 @@ export async function toggleParticipation(
     if (existing && role !== null) {
       await prisma.participation.update({ where: { id: existing.id }, data: { role } });
       revalidateEntry(theme, entryId);
-      return "기록을 고쳤다.";
+      return "기록을 고쳤어요.";
     }
 
     if (existing) {
       await prisma.participation.delete({ where: { id: existing.id } });
       revalidateEntry(theme, entryId);
-      return "기록에서 뺐다.";
+      return "기록에서 뺐어요.";
     }
 
     await prisma.participation.create({ data: { entryId, userId: user.id, role } });
     revalidateEntry(theme, entryId);
-    return "기록에 넣었다.";
+    return "기록에 넣었어요.";
   });
 }
 

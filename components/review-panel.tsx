@@ -103,7 +103,7 @@ function ReviewBody({
           onClick={() => setHidden(false)}
           className="w-full rounded-lg border border-dashed border-border bg-surface-muted px-3 py-4 text-sm text-ink-muted transition-colors hover:text-ink"
         >
-          스포일러가 있다. 눌러서 보기
+          스포일러가 있어요. 눌러서 보기
         </button>
       ) : (
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{review.body}</p>
@@ -163,7 +163,7 @@ function ReviewEditor({
           defaultChecked={existing?.isSpoiler ?? defaultSpoiler}
           className="size-4 accent-[var(--accent)]"
         />
-        스포일러 포함 (상대방에게는 가려서 보여준다)
+        스포일러 포함 (상대에게는 가려서 보여줘요)
       </label>
 
       <div className="flex items-center gap-2">

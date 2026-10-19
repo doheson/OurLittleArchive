@@ -134,14 +134,14 @@ export async function searchTracks(term: string, limit = 12): Promise<ITunesTrac
       headers: { Accept: "application/json" },
     });
   } catch {
-    throw new MusicSearchError("음악 검색 서버에 연결하지 못했다.");
+    throw new MusicSearchError("음악 검색 서버에 연결하지 못했어요.");
   }
 
   if (response.status === 403 || response.status === 429) {
-    throw new MusicSearchError("검색 요청이 너무 잦다. 잠시 후 다시 시도한다.");
+    throw new MusicSearchError("검색을 너무 자주 했어요. 잠시 후 다시 시도해 주세요.");
   }
   if (!response.ok) {
-    throw new MusicSearchError("음악 검색에 실패했다.");
+    throw new MusicSearchError("음악 검색에 실패했어요.");
   }
 
   // 가끔 Content-Type 이 text/javascript 로 와서 json() 이 실패할 수 있다.
@@ -150,12 +150,12 @@ export async function searchTracks(term: string, limit = 12): Promise<ITunesTrac
   try {
     payload = JSON.parse(body);
   } catch {
-    throw new MusicSearchError("음악 검색 응답을 읽지 못했다.");
+    throw new MusicSearchError("음악 검색 결과를 읽지 못했어요.");
   }
 
   const parsed = responseSchema.safeParse(payload);
   if (!parsed.success) {
-    throw new MusicSearchError("음악 검색 응답 형식이 예상과 다르다.");
+    throw new MusicSearchError("음악 검색 결과 형식이 예상과 달라요.");
   }
 
   const tracks = (parsed.data.results ?? [])

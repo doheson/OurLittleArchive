@@ -141,6 +141,7 @@ export type ThemeConfig = {
   hasDate: boolean;
   /** 위치와 지도를 쓰는가 */
   hasLocation: boolean;
+  /** 사진을 올려 모으는가. 끄면 상세에서 사진 칸 자체가 사라진다. */
   hasPhotos: boolean;
   /** 둘이 같이 한 것과 각자 한 것을 구분해 보여주는가 */
   tracksPerPerson: boolean;
@@ -182,7 +183,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasDailyPick: false,
     hasDate: true,
     hasLocation: true,
-    hasPhotos: true,
+    hasPhotos: false,
     tracksPerPerson: true,
     tracksRole: false,
     spoilerSensitive: true,
@@ -216,7 +217,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasDailyPick: false,
     hasDate: true,
     hasLocation: false,
-    hasPhotos: true,
+    hasPhotos: false,
     tracksPerPerson: false,
     tracksRole: false,
     spoilerSensitive: false,
@@ -235,7 +236,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     // 보드게임의 한 종류라 장소를 따로 적지 않는다. 어디서 했는지가 아니라
     // 어떤 작품을 누가 했는지가 중요하다.
     hasLocation: false,
-    hasPhotos: true,
+    hasPhotos: false,
     // 한쪽만 해본 작품이 많은 테마라 각자 기록을 구분해 보여준다.
     tracksPerPerson: true,
     tracksRole: true,

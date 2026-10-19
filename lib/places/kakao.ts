@@ -9,7 +9,7 @@ import { z } from "zod";
  * 단, 앱에서 카카오맵을 켜야 한다.
  * 켜지 않으면 403 과 함께 "disabled OPEN_MAP_AND_LOCAL service" 가 돌아온다.
  * 콘솔의 [카카오맵] > [사용 설정] 에서 상태를 ON 으로 바꾸면 된다.
- * 무료 쿼터는 계정에서 처음 카카오맵을 켠 앱에만 주어진다.
+ * 무료 쿼터는 계정에서 처음 카카오맵을 켠 앱에만 주어져요.
  */
 
 const SEARCH_ENDPOINT = "https://dapi.kakao.com/v2/local/search/keyword.json";
@@ -119,7 +119,7 @@ export async function searchPlaces(term: string, size = 12): Promise<KakaoPlace[
   const apiKey = process.env.KAKAO_REST_API_KEY?.trim();
   if (!apiKey) {
     throw new PlaceSearchError(
-      "카카오 REST API 키가 설정되지 않았다. .env 의 KAKAO_REST_API_KEY 를 채운다.",
+      "카카오 REST API 키가 없어요. .env 의 KAKAO_REST_API_KEY 를 채워 주세요.",
       true,
     );
   }
@@ -139,36 +139,36 @@ export async function searchPlaces(term: string, size = 12): Promise<KakaoPlace[
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch {
-    throw new PlaceSearchError("장소 검색 서버에 연결하지 못했다.");
+    throw new PlaceSearchError("장소 검색 서버에 연결하지 못했어요.");
   }
 
   if (response.status === 401) {
-    throw new PlaceSearchError("카카오 키가 거부됐다. 키가 맞는지 확인한다.", true);
+    throw new PlaceSearchError("카카오 키가 거부됐어요. 키가 맞는지 확인해 주세요.", true);
   }
   if (response.status === 403) {
     // 앱에서 카카오맵을 켜지 않으면 여기로 온다. 가장 자주 걸리는 지점이라 따로 안내한다.
     throw new PlaceSearchError(
-      "앱에서 카카오맵이 꺼져 있다. 콘솔의 [카카오맵] > [사용 설정] 에서 켠다.",
+      "앱에서 카카오맵이 꺼져 있어요. 콘솔의 [카카오맵] > [사용 설정] 에서 켜 주세요.",
       true,
     );
   }
   if (response.status === 429) {
-    throw new PlaceSearchError("검색 요청이 한도를 넘었다. 잠시 후 다시 시도한다.");
+    throw new PlaceSearchError("검색을 너무 많이 했어요. 잠시 후 다시 시도해 주세요.");
   }
   if (!response.ok) {
-    throw new PlaceSearchError("장소 검색에 실패했다.");
+    throw new PlaceSearchError("장소 검색에 실패했어요.");
   }
 
   let payload: unknown;
   try {
     payload = await response.json();
   } catch {
-    throw new PlaceSearchError("장소 검색 응답을 읽지 못했다.");
+    throw new PlaceSearchError("장소 검색 결과를 읽지 못했어요.");
   }
 
   const parsed = responseSchema.safeParse(payload);
   if (!parsed.success) {
-    throw new PlaceSearchError("장소 검색 응답 형식이 예상과 다르다.");
+    throw new PlaceSearchError("장소 검색 결과 형식이 예상과 달라요.");
   }
 
   const places = (parsed.data.documents ?? [])

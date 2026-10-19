@@ -160,7 +160,7 @@ export async function searchBooks(term: string, size = 12): Promise<KakaoBook[]>
   const apiKey = process.env.KAKAO_REST_API_KEY?.trim();
   if (!apiKey) {
     throw new BookSearchError(
-      "카카오 REST API 키가 설정되지 않았다. .env 의 KAKAO_REST_API_KEY 를 채운다.",
+      "카카오 REST API 키가 없어요. .env 의 KAKAO_REST_API_KEY 를 채워 주세요.",
       true,
     );
   }
@@ -181,32 +181,32 @@ export async function searchBooks(term: string, size = 12): Promise<KakaoBook[]>
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch {
-    throw new BookSearchError("책 검색 서버에 연결하지 못했다.");
+    throw new BookSearchError("책 검색 서버에 연결하지 못했어요.");
   }
 
   if (response.status === 401 || response.status === 403) {
     throw new BookSearchError(
-      "카카오 키가 거부됐다. 키가 맞는지, 앱에 검색 기능이 켜져 있는지 확인한다.",
+      "카카오 키가 거부됐어요. 키가 맞는지, 앱에 검색 기능이 켜져 있는지 확인해 주세요.",
       true,
     );
   }
   if (response.status === 429) {
-    throw new BookSearchError("검색 요청이 한도를 넘었다. 잠시 후 다시 시도한다.");
+    throw new BookSearchError("검색을 너무 많이 했어요. 잠시 후 다시 시도해 주세요.");
   }
   if (!response.ok) {
-    throw new BookSearchError("책 검색에 실패했다.");
+    throw new BookSearchError("책 검색에 실패했어요.");
   }
 
   let payload: unknown;
   try {
     payload = await response.json();
   } catch {
-    throw new BookSearchError("책 검색 응답을 읽지 못했다.");
+    throw new BookSearchError("책 검색 결과를 읽지 못했어요.");
   }
 
   const parsed = responseSchema.safeParse(payload);
   if (!parsed.success) {
-    throw new BookSearchError("책 검색 응답 형식이 예상과 다르다.");
+    throw new BookSearchError("책 검색 결과 형식이 예상과 달라요.");
   }
 
   const books = (parsed.data.documents ?? [])

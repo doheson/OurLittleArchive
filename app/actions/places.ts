@@ -23,7 +23,7 @@ export async function searchPlacesAction(rawTerm: string): Promise<PlaceSearchSt
       return { status: "error", term, error: error.message, needsSetup: error.needsSetup };
     }
     console.error("[searchPlacesAction]", error);
-    return { status: "error", term, error: "장소 검색에 실패했다.", needsSetup: false };
+    return { status: "error", term, error: "장소 검색에 실패했어요.", needsSetup: false };
   }
 }
 

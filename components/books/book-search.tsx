@@ -74,7 +74,7 @@ export function BookSearch({
         ))}
 
       {shown.status === "ok" && shown.books.length === 0 && (
-        <p className="text-sm text-ink-muted">결과가 없다. 저자 이름을 같이 넣어보자.</p>
+        <p className="text-sm text-ink-muted">결과가 없어요. 저자 이름을 같이 넣어 보세요.</p>
       )}
 
       {shown.status === "ok" && shown.books.length > 0 && (
@@ -122,7 +122,7 @@ export function BookSearch({
 function KakaoSetupNotice() {
   return (
     <div className="space-y-2 rounded-xl border border-border bg-surface-muted p-4 text-sm">
-      <p className="font-medium">카카오 키가 아직 없다</p>
+      <p className="font-medium">카카오 키가 아직 없어요</p>
       <ol className="list-decimal space-y-1 pl-5 text-ink-muted">
         <li>
           <a
@@ -133,18 +133,18 @@ function KakaoSetupNotice() {
           >
             developers.kakao.com
           </a>{" "}
-          에서 애플리케이션을 추가한다 (심사 없이 바로 된다)
+          에서 애플리케이션을 추가해요 (심사 없이 바로 돼요)
         </li>
-        <li>[앱 키] 메뉴의 REST API 키를 복사한다</li>
+        <li>[앱 키] 메뉴의 REST API 키를 복사해요</li>
         <li>
           프로젝트의 <code className="rounded bg-background px-1">.env</code> 에서{" "}
-          <code className="rounded bg-background px-1">KAKAO_REST_API_KEY</code> 에 붙여넣는다
+          <code className="rounded bg-background px-1">KAKAO_REST_API_KEY</code> 에 붙여넣어요
         </li>
-        <li>개발 서버를 다시 시작한다</li>
+        <li>개발 서버를 다시 시작해요</li>
       </ol>
       <p className="text-ink-muted">
-        같은 키를 공간 테마의 장소 검색에서도 쓴다. 키 없이 책을 넣고 싶으면{" "}
-        <span className="text-ink">직접 입력</span>으로 등록하면 된다.
+        같은 키를 공간 테마의 장소 검색에서도 써요. 키 없이 책을 넣고 싶으면{" "}
+        <span className="text-ink">직접 입력</span>으로 등록하면 돼요.
       </p>
     </div>
   );
@@ -253,7 +253,7 @@ function PickedBookForm({
             ))}
           </div>
           <p className="mt-1 text-xs text-ink-muted">
-            나중에 상대가 다 읽으면 책 상세에서 직접 표시할 수 있다.
+            나중에 상대가 다 읽으면 책 상세에서 직접 표시할 수 있어요.
           </p>
         </fieldset>
       )}

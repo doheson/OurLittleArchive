@@ -20,7 +20,7 @@ const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 30; // 30일
 function sessionSecret(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
   if (!secret || secret.length < 16) {
-    throw new Error("AUTH_SECRET 이 없거나 너무 짧다. .env 를 확인한다.");
+    throw new Error("AUTH_SECRET 이 없거나 너무 짧아요. .env 를 확인해 주세요.");
   }
   return new TextEncoder().encode(secret);
 }

@@ -15,7 +15,7 @@ import { PrismaClient } from "./generated/prisma/client";
 function createPrismaClient() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
-    throw new Error("DATABASE_URL 이 설정되지 않았다. .env.example 을 복사해 .env 를 만든다.");
+    throw new Error("DATABASE_URL 이 없어요. .env.example 을 복사해 .env 를 만들어 주세요.");
   }
 
   const adapter = new PrismaPg({ connectionString: databaseUrl });

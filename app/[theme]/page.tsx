@@ -152,7 +152,7 @@ export default async function ThemePage({
 
       {entries.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-ink-muted">
-          아직 없다.
+          아직 없어요.
         </p>
       ) : (
         <ul className="space-y-2">

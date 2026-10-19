@@ -42,7 +42,7 @@ export default async function HomePage() {
         {!isEmpty && (
           <p className="mt-2 text-sm text-ink-muted">
             지금까지 <span className="text-ink tabular-nums">{totalDone}</span>개를 함께했고,{" "}
-            <span className="text-ink tabular-nums">{totalWish}</span>개가 기다리고 있다.
+            <span className="text-ink tabular-nums">{totalWish}</span>개가 기다리고 있어요.
           </p>
         )}
       </header>
@@ -67,7 +67,7 @@ export default async function HomePage() {
         ) : (
           <TodayEmpty
             label="오늘의 곡"
-            message="오늘 고른 곡이 아직 없다."
+            message="오늘 고른 곡이 아직 없어요."
             actionHref="/music/pick?daily=1"
             actionLabel="곡 고르러 가기"
             canAct={Boolean(user)}
@@ -89,7 +89,7 @@ export default async function HomePage() {
         ) : (
           <TodayEmpty
             label="추천 코너"
-            message="추천한 책이 아직 없다."
+            message="추천한 책이 아직 없어요."
             actionHref="/books/pick?recommend=1"
             actionLabel="책 추천하러 가기"
             canAct={Boolean(user)}
@@ -103,8 +103,8 @@ export default async function HomePage() {
         {recent.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-ink-muted">
             {user
-              ? "아직 아무것도 없다. 아래에서 테마를 고르고 첫 기록을 남겨보자."
-              : "아직 아무것도 없다."}
+              ? "아직 아무것도 없어요. 아래에서 테마를 고르고 첫 기록을 남겨보자."
+              : "아직 아무것도 없어요."}
           </p>
         ) : (
           <ul className="space-y-2">

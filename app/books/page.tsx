@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "독서" };
 
 const THEME = THEMES.BOOK;
 
-/** EntryView 를 독서 카드가 쓰는 모양으로 바꾼다. 두 사람 줄을 항상 만든다. */
+/** EntryView 를 독서 카드가 쓰는 모양으로 바꿔요. 두 사람 줄을 항상 만든다. */
 function toBookCard(
   entry: EntryView,
   people: { id: string; displayName: string }[],
@@ -121,7 +121,7 @@ export default async function BooksPage({
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-border p-8 text-center">
-            <p className="text-sm text-ink-muted">아직 추천한 책이 없다.</p>
+            <p className="text-sm text-ink-muted">아직 추천한 책이 없어요.</p>
             {user && (
               <Link
                 href="/books/pick?recommend=1"
@@ -155,7 +155,7 @@ export default async function BooksPage({
 
         {entries.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-ink-muted">
-            아직 없다.
+            아직 없어요.
           </p>
         ) : status === "DONE" ? (
           // 읽은 책은 두 사람의 평점과 감상평을 나란히 보여준다.
