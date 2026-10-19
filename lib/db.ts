@@ -1,11 +1,16 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "./generated/prisma/client";
 
 /**
  * Prisma 7 은 런타임 연결을 드라이버 어댑터로 받는다.
- * Postgres 로 옮길 때는 @prisma/adapter-pg 를 설치하고 이 함수 안의 어댑터만 바꾸면 된다.
- *   const adapter = new PrismaPg({ connectionString: databaseUrl });
- * 스키마의 datasource provider 도 postgresql 로 바꾸고 마이그레이션을 새로 만들어야 한다.
+ *
+ * Postgres 하나만 쓴다. 개발도 같은 provider 를 써야 한다.
+ * SQLite 로 개발하고 Postgres 로 배포하면 마이그레이션 기록이 갈라지고,
+ * 로컬에서는 통과하는데 운영에서 깨지는 차이가 생긴다.
+ * Neon 은 브랜치를 여러 개 주므로 개발용 브랜치를 따로 쓰면 된다.
+ *
+ * 서버리스에서는 연결이 금방 쌓이므로 Neon 의 pooled 연결 문자열
+ * (-pooler 가 붙은 host)을 쓴다.
  */
 function createPrismaClient() {
   const databaseUrl = process.env.DATABASE_URL;
@@ -13,7 +18,7 @@ function createPrismaClient() {
     throw new Error("DATABASE_URL 이 설정되지 않았다. .env.example 을 복사해 .env 를 만든다.");
   }
 
-  const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+  const adapter = new PrismaPg({ connectionString: databaseUrl });
   return new PrismaClient({ adapter });
 }
 
