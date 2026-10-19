@@ -280,6 +280,9 @@ npm run db:seed          # 두 사람 계정 생성
 | `S3_*` | R2 접속 정보 |
 | `PHOTO_PUBLIC_BASE_URL` | 공개 주소를 쓸 때만 |
 
+**환경변수를 먼저 넣고 배포한다.** 특히 `DATABASE_URL` 이 없으면 빌드가 아니라
+앱이 뜬 뒤에 모든 화면이 죽는다. Vercel 은 Settings > Environment Variables 에서 넣는다.
+
 `SEED_USER_*` 는 운영에 넣지 않아도 된다. 계정은 로컬에서 운영 DB 를 향해
 `npm run db:seed` 를 한 번 돌리면 만들어진다.
 
