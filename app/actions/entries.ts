@@ -343,3 +343,86 @@ export async function removePhoto(formData: FormData): Promise<void> {
 
   revalidateEntry(photo.entry.theme as ThemeKey, photo.entryId);
 }
+
+// --- 각자 기록 / 베스트 순위 -------------------------------------------------
+
+const participationSchema = z.object({
+  entryId: z.string().min(1),
+  role: z.string().max(100).nullable(),
+});
+
+/**
+ * "나도 해봤음" 을 켜고 끈다. 켤 때 맡은 역할을 같이 적을 수 있다.
+ * 머더미스터리처럼 한쪽만 해본 작품이 많은 테마에서 쓴다.
+ */
+export async function toggleParticipation(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  return runAction(async () => {
+    const user = await requireUser();
+    const roleRaw = formData.get("role");
+    const { entryId, role } = participationSchema.parse({
+      entryId: formData.get("entryId"),
+      role: typeof roleRaw === "string" && roleRaw.trim() ? roleRaw.trim() : null,
+    });
+
+    const theme = await entryThemeOrThrow(entryId);
+    const existing = await prisma.participation.findUnique({
+      where: { entryId_userId: { entryId, userId: user.id } },
+    });
+
+    // 이미 기록돼 있는데 역할만 바꾸려는 경우가 있어, 역할이 들어오면 끄지 않고 고친다.
+    if (existing && role !== null) {
+      await prisma.participation.update({ where: { id: existing.id }, data: { role } });
+      revalidateEntry(theme, entryId);
+      return "기록을 고쳤다.";
+    }
+
+    if (existing) {
+      await prisma.participation.delete({ where: { id: existing.id } });
+      revalidateEntry(theme, entryId);
+      return "기록에서 뺐다.";
+    }
+
+    await prisma.participation.create({ data: { entryId, userId: user.id, role } });
+    revalidateEntry(theme, entryId);
+    return "기록에 넣었다.";
+  });
+}
+
+/**
+ * 내 베스트에서 순위를 한 칸 올리거나 내린다.
+ *
+ * rank 에 (userId, theme) 기준 고유 제약이 걸려 있어 두 줄을 그냥 맞바꾸면 충돌한다.
+ * 그래서 한쪽을 잠깐 음수로 빼두고 세 단계로 바꾼다.
+ */
+export async function moveFavorite(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const entryId = z.string().min(1).parse(formData.get("entryId"));
+  const direction = z.enum(["up", "down"]).parse(formData.get("direction"));
+
+  const current = await prisma.favorite.findUnique({
+    where: { userId_entryId: { userId: user.id, entryId } },
+  });
+  if (!current) return;
+
+  const neighbor = await prisma.favorite.findFirst({
+    where: {
+      userId: user.id,
+      theme: current.theme,
+      rank: direction === "up" ? { lt: current.rank } : { gt: current.rank },
+    },
+    orderBy: { rank: direction === "up" ? "desc" : "asc" },
+  });
+  // 맨 위에서 올리거나 맨 아래에서 내리면 할 일이 없다.
+  if (!neighbor) return;
+
+  await prisma.$transaction([
+    prisma.favorite.update({ where: { id: current.id }, data: { rank: -1 } }),
+    prisma.favorite.update({ where: { id: neighbor.id }, data: { rank: current.rank } }),
+    prisma.favorite.update({ where: { id: current.id }, data: { rank: neighbor.rank } }),
+  ]);
+
+  revalidateEntry(current.theme as ThemeKey, entryId);
+}

@@ -54,7 +54,7 @@ export const THEME_META_FIELDS: Record<ThemeKey, MetaField[]> = {
   MURDER_MYSTERY: [
     { name: "genre", label: "장르", type: "text" },
     { name: "playerCount", label: "인원", type: "number", min: 1, step: 1 },
-    { name: "character", label: "맡은 캐릭터", type: "text" },
+    // 맡은 캐릭터는 사람마다 달라서 각자 기록(Participation.role)에 적는다.
     { name: "durationMin", label: "소요 시간(분)", type: "number", min: 1, step: 1 },
   ],
   PLACE: [

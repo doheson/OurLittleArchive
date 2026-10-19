@@ -83,6 +83,9 @@ model Participation {
   id      String @id @default(cuid())
   entryId String
   userId  String
+  /// 머더미스터리에서 맡은 캐릭터. 같은 작품이라도 사람마다 다르므로
+  /// Entry.metaJson 이 아니라 여기 둔다.
+  role    String?
 
   entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)

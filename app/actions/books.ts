@@ -184,21 +184,3 @@ export async function recommendBook(formData: FormData): Promise<void> {
   revalidatePath(`/entry/${entry.id}`);
 }
 
-/** 내가 이 책을 읽었다고 표시하거나 해제한다. */
-export async function toggleHasRead(formData: FormData): Promise<void> {
-  const user = await requireUser();
-  const entryId = z.string().min(1).parse(formData.get("entryId"));
-
-  const existing = await prisma.participation.findUnique({
-    where: { entryId_userId: { entryId, userId: user.id } },
-  });
-
-  if (existing) {
-    await prisma.participation.delete({ where: { id: existing.id } });
-  } else {
-    await prisma.participation.create({ data: { entryId, userId: user.id } });
-  }
-
-  revalidatePath("/books");
-  revalidatePath(`/entry/${entryId}`);
-}

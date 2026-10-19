@@ -12,7 +12,11 @@ import { toDayKey } from "./date";
 const entryInclude = {
   createdBy: { select: { id: true, slug: true, displayName: true } },
   participations: {
-    select: { userId: true, user: { select: { id: true, slug: true, displayName: true } } },
+    select: {
+      userId: true,
+      role: true,
+      user: { select: { id: true, slug: true, displayName: true } },
+    },
   },
   ratings: {
     select: { userId: true, score: true, updatedAt: true },

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteEntry, toggleFavorite } from "@/app/actions/entries";
 import { promoteToTodaysPick } from "@/app/actions/music";
-import { recommendBook, toggleHasRead } from "@/app/actions/books";
+import { recommendBook } from "@/app/actions/books";
 import { markPlaceVisited } from "@/app/actions/places";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -13,6 +13,7 @@ import { THEME_META_FIELDS } from "@/lib/theme-fields";
 import { THEMES } from "@/lib/themes";
 import { formatKoreanDate } from "@/lib/date";
 import { MusicPanel } from "@/components/music/music-panel";
+import { ParticipationPanel } from "@/components/collections/participation-panel";
 import { PhotoManager } from "@/components/photo-manager";
 import { RatingPanel } from "@/components/rating-panel";
 import { ReviewPanel } from "@/components/review-panel";
@@ -53,10 +54,6 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
     : null;
 
   const date = formatKoreanDate(entry.experiencedOn);
-  // 독서에서 "다 읽었음" 버튼의 문구를 정할 때 쓴다.
-  const iHaveRead = user
-    ? entry.participations.some((row) => row.userId === user.id)
-    : false;
   // 듣기 영역에서 플레이어로 보여주는 링크는 정보 표에 또 적지 않는다.
   const handledByPlayer = new Set(
     theme.key === "MUSIC" ? ["spotifyUrl", "youtubeUrl"] : [],
@@ -146,20 +143,12 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
               )}
 
               {theme.key === "BOOK" && (
-                <>
-                  <form action={recommendBook}>
-                    <input type="hidden" name="entryId" value={entry.id} />
-                    <SubmitButton variant="subtle" className="px-3 py-1.5">
-                      추천 코너에 올리기
-                    </SubmitButton>
-                  </form>
-                  <form action={toggleHasRead}>
-                    <input type="hidden" name="entryId" value={entry.id} />
-                    <SubmitButton variant="subtle" className="px-3 py-1.5">
-                      {iHaveRead ? "안 읽은 걸로" : "다 읽었음"}
-                    </SubmitButton>
-                  </form>
-                </>
+                <form action={recommendBook}>
+                  <input type="hidden" name="entryId" value={entry.id} />
+                  <SubmitButton variant="subtle" className="px-3 py-1.5">
+                    추천 코너에 올리기
+                  </SubmitButton>
+                </form>
               )}
 
               {theme.key === "PLACE" && entry.status === "WISHLIST" && (
@@ -221,6 +210,26 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
       )}
 
       {theme.key === "MUSIC" && <MusicPanel title={entry.title} meta={entry.meta} />}
+
+      {theme.tracksPerPerson && (
+        <ParticipationPanel
+          entryId={entry.id}
+          participants={people.map((person) => {
+            const row = entry.participations.find((p) => p.userId === person.id);
+            return {
+              userId: person.id,
+              displayName: person.displayName,
+              joined: Boolean(row),
+              role: row?.role ?? null,
+            };
+          })}
+          currentUserId={user?.id ?? null}
+          tracksRole={theme.tracksRole}
+          roleLabel="맡은 캐릭터"
+          joinLabel={theme.key === "BOOK" ? "다 읽었음" : "나도 해봤음"}
+          leaveLabel={theme.key === "BOOK" ? "안 읽은 걸로" : "기록에서 빼기"}
+        />
+      )}
 
       {theme.hasRating && (
         <RatingPanel

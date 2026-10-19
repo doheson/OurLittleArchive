@@ -92,8 +92,7 @@ const murderMysteryMeta = z.object({
   // 공연장은 Entry.subtitle 이 담는다.
   genre: z.string().optional(),
   playerCount: z.number().int().min(1).optional(),
-  /** 내가 맡은 캐릭터. 사람마다 다르므로 각자 기록에서 쓴다. */
-  character: z.string().optional(),
+  // 맡은 캐릭터는 사람마다 다르므로 Participation.role 에 둔다.
   durationMin: z.number().int().min(1).optional(),
 });
 
@@ -145,6 +144,8 @@ export type ThemeConfig = {
   hasPhotos: boolean;
   /** 둘이 같이 한 것과 각자 한 것을 구분해 보여주는가 */
   tracksPerPerson: boolean;
+  /** 각자 기록에 맡은 역할을 같이 적는가 (머더미스터리의 캐릭터) */
+  tracksRole: boolean;
   /** 감상평에 스포일러 가리기를 기본 제공하는가 */
   spoilerSensitive: boolean;
   subCategories?: readonly string[];
@@ -166,6 +167,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasLocation: false,
     hasPhotos: false,
     tracksPerPerson: false,
+    tracksRole: false,
     spoilerSensitive: false,
   },
   ESCAPE_ROOM: {
@@ -182,6 +184,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasLocation: true,
     hasPhotos: true,
     tracksPerPerson: true,
+    tracksRole: false,
     spoilerSensitive: true,
   },
   BOOK: {
@@ -198,6 +201,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasLocation: false,
     hasPhotos: false,
     tracksPerPerson: true,
+    tracksRole: false,
     spoilerSensitive: true,
   },
   BOARD_GAME: {
@@ -214,6 +218,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasLocation: false,
     hasPhotos: true,
     tracksPerPerson: false,
+    tracksRole: false,
     spoilerSensitive: false,
   },
   MURDER_MYSTERY: {
@@ -231,6 +236,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasPhotos: true,
     // 한쪽만 해본 공연이 많은 테마라 각자 기록을 구분해 보여준다.
     tracksPerPerson: true,
+    tracksRole: true,
     // 스포일러가 가장 민감한 테마. 감상평은 기본적으로 가린다.
     spoilerSensitive: true,
   },
@@ -248,6 +254,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasLocation: true,
     hasPhotos: true,
     tracksPerPerson: false,
+    tracksRole: false,
     spoilerSensitive: false,
     subCategories: PLACE_SUB_CATEGORIES,
     subCategoryLabels: { DATE: "데이트", TRAVEL: "여행" },
