@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { parseEntryForm, ratingSchema, reviewSchema, validateMeta } from "@/lib/entry-schema";
+import { mergeMeta, parseEntryForm, ratingSchema, reviewSchema, validateMeta } from "@/lib/entry-schema";
 import { THEMES, themeKeySchema, type ThemeKey } from "@/lib/themes";
 import { deletePhoto, putPhoto } from "@/lib/storage";
 import { todayKey } from "@/lib/date";
@@ -100,8 +100,14 @@ export async function updateEntry(
 
     const entryId = z.string().min(1).parse(formData.get("entryId"));
     const input = parseEntryForm(formData);
-    const metaJson = validateMeta(input.theme, input.meta);
     const participantIds = await validParticipantIds(input.participantIds);
+
+    // 폼에 없는 meta 값(검색 연동이 채운 것들)을 지우지 않도록 기존 값과 합친다.
+    const before = await prisma.entry.findUnique({
+      where: { id: entryId },
+      select: { metaJson: true },
+    });
+    const metaJson = mergeMeta(input.theme, before?.metaJson ?? null, input.meta);
 
     await prisma.$transaction([
       prisma.entry.update({

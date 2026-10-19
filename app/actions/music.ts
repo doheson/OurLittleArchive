@@ -8,7 +8,8 @@ import { requireUser } from "@/lib/auth";
 import { todayKey } from "@/lib/date";
 import { MusicSearchError, searchTracks } from "@/lib/music/itunes";
 import { SEARCH_IDLE, type SearchState } from "@/lib/music/search-state";
-import { entryStatusSchema, serializeMeta } from "@/lib/themes";
+import { entryStatusSchema } from "@/lib/themes";
+import { mergeApiMeta } from "@/lib/entry-schema";
 import { runAction, type ActionResult } from "./result";
 
 /**
@@ -79,7 +80,19 @@ export async function saveTrack(_prev: ActionResult, formData: FormData): Promis
     const asDailyPick = formData.get("asDailyPick") === "on";
     const comment = emptyToNull(formData.get("comment"));
 
-    const metaJson = serializeMeta("MUSIC", {
+    // 이미 있던 곡이면 손으로 적어둔 유튜브/Spotify 링크를 지우지 않도록 합친다.
+    const before = await prisma.entry.findUnique({
+      where: {
+        theme_externalSource_externalId: {
+          theme: "MUSIC",
+          externalSource: "ITUNES",
+          externalId: track.trackId,
+        },
+      },
+      select: { metaJson: true },
+    });
+
+    const metaJson = mergeApiMeta("MUSIC", before?.metaJson ?? null, {
       artist: track.artist,
       album: track.album ?? undefined,
       genre: track.genre ?? undefined,

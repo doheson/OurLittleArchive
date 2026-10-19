@@ -8,7 +8,8 @@ import { requireUser } from "@/lib/auth";
 import { todayKey } from "@/lib/date";
 import { BookSearchError, searchBooks } from "@/lib/books/kakao";
 import { BOOK_SEARCH_IDLE, type BookSearchState } from "@/lib/books/search-state";
-import { entryStatusSchema, serializeMeta } from "@/lib/themes";
+import { entryStatusSchema } from "@/lib/themes";
+import { mergeApiMeta } from "@/lib/entry-schema";
 import { runAction, type ActionResult } from "./result";
 
 /** 검색창에서 입력이 멈출 때마다 부른다. 예외 대신 상태로 돌려준다. */
@@ -93,7 +94,18 @@ export async function saveBook(_prev: ActionResult, formData: FormData): Promise
         ).map((row) => row.id)
       : [];
 
-    const metaJson = serializeMeta("BOOK", {
+    const before = await prisma.entry.findUnique({
+      where: {
+        theme_externalSource_externalId: {
+          theme: "BOOK",
+          externalSource: "KAKAO_BOOK",
+          externalId: book.isbn,
+        },
+      },
+      select: { metaJson: true },
+    });
+
+    const metaJson = mergeApiMeta("BOOK", before?.metaJson ?? null, {
       authors: book.authors.length ? book.authors : undefined,
       translators: book.translators.length ? book.translators : undefined,
       publisher: book.publisher ?? undefined,

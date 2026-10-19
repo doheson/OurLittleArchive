@@ -5,6 +5,7 @@ import {
   entryStatusSchema,
   externalSourceSchema,
   isValidSubCategory,
+  parseMeta,
   themeKeySchema,
   type ThemeKey,
 } from "./themes";
@@ -165,3 +166,51 @@ export const reviewSchema = z.object({
   body: z.string().min(1, "감상평을 입력한다.").max(5000),
   isSpoiler: z.boolean(),
 });
+
+/**
+ * 수정할 때 meta 를 합친다.
+ *
+ * 범용 수정 폼은 lib/theme-fields.ts 에 적힌 칸만 보여준다.
+ * 그런데 meta 에는 폼에 없는 값도 들어 있다. 검색 연동이 채운 것들
+ * (음악의 artist/previewUrl/appleUrl, 책의 authors 등)이 그렇다.
+ * 폼이 보낸 값으로 통째로 덮어쓰면 그 값들이 조용히 사라진다.
+ *
+ * 그래서 폼이 관리하는 칸만 걷어내고 나머지는 남긴다.
+ * 폼에 있는 칸을 비우면 지워지고, 폼에 없는 칸은 보존된다.
+ */
+export function mergeMeta<K extends ThemeKey>(
+  theme: K,
+  existingMetaJson: string | null,
+  formMeta: Record<string, unknown>,
+): string | null {
+  const existing = parseMeta(theme, existingMetaJson) as Record<string, unknown>;
+  const formManaged = new Set(THEME_META_FIELDS[theme].map((field) => field.name));
+
+  const preserved = Object.fromEntries(
+    Object.entries(existing).filter(([key]) => !formManaged.has(key)),
+  );
+
+  return validateMeta(theme, { ...preserved, ...formMeta });
+}
+
+/**
+ * 검색 결과로 다시 저장할 때 meta 를 합친다.
+ *
+ * 같은 곡/책/장소를 다시 고르면 API 가 준 값으로 갱신하는데,
+ * 그때 손으로 적어둔 값(음악의 유튜브 링크 같은 것)까지 덮어쓰면 안 된다.
+ * API 가 주는 칸만 새 값으로 바꾸고 나머지는 그대로 둔다.
+ */
+export function mergeApiMeta<K extends ThemeKey>(
+  theme: K,
+  existingMetaJson: string | null,
+  apiMeta: Record<string, unknown>,
+): string | null {
+  const existing = parseMeta(theme, existingMetaJson) as Record<string, unknown>;
+
+  // API 가 값을 주지 않은 칸(undefined)은 기존 값을 지우지 않는다.
+  const incoming = Object.fromEntries(
+    Object.entries(apiMeta).filter(([, value]) => value !== undefined && value !== null),
+  );
+
+  return validateMeta(theme, { ...existing, ...incoming });
+}

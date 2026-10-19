@@ -7,7 +7,7 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { PlaceSearchError, searchPlaces } from "@/lib/places/kakao";
 import { PLACE_SEARCH_IDLE, type PlaceSearchState } from "@/lib/places/search-state";
-import { serializeMeta } from "@/lib/themes";
+import { mergeApiMeta } from "@/lib/entry-schema";
 import { runAction, type ActionResult } from "./result";
 
 /** 검색창에서 입력이 멈출 때마다 부른다. 예외 대신 상태로 돌려준다. */
@@ -108,7 +108,18 @@ export async function savePlace(_prev: ActionResult, formData: FormData): Promis
     const experiencedOn = dateOrNull(formData.get("experiencedOn"));
     const note = emptyToNull(formData.get("note"));
 
-    const metaJson = serializeMeta("PLACE", {
+    const before = await prisma.entry.findUnique({
+      where: {
+        theme_externalSource_externalId: {
+          theme: "PLACE",
+          externalSource: "KAKAO_LOCAL",
+          externalId: place.placeId,
+        },
+      },
+      select: { metaJson: true },
+    });
+
+    const metaJson = mergeApiMeta("PLACE", before?.metaJson ?? null, {
       category: place.category ?? undefined,
       phone: place.phone ?? undefined,
       kakaoPlaceUrl: place.placeUrl ?? undefined,

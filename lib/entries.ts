@@ -1,6 +1,6 @@
 import type { Prisma } from "./generated/prisma/client";
 import { prisma } from "./db";
-import { parseMeta, type EntryStatus, type ThemeKey } from "./themes";
+import { parseMeta, THEME_KEYS, type EntryStatus, type ThemeKey } from "./themes";
 import { photoUrl } from "./storage";
 import { toDayKey } from "./date";
 
@@ -143,9 +143,15 @@ export async function listFavorites(theme: ThemeKey) {
   return favorites.map((favorite) => ({ ...favorite, entry: toView(favorite.entry) }));
 }
 
-/** 홈 화면용. 테마를 가로질러 최근 기록을 가져온다. */
+/**
+ * 홈 화면용. 테마를 가로질러 최근에 "한 것" 을 가져온다.
+ *
+ * 하고 싶은 것은 listUpcoming 이 따로 가져온다.
+ * 둘을 나눠두지 않으면 같은 항목이 홈 한 화면에 두 번 나온다.
+ */
 export async function listRecentEntries(take = 12): Promise<EntryView[]> {
   const entries = await prisma.entry.findMany({
+    where: { status: "DONE" },
     include: entryInclude,
     orderBy: { createdAt: "desc" },
     take,
@@ -193,4 +199,41 @@ export async function countPlaceBuckets(): Promise<{
     }
   }
   return counts;
+}
+
+/** 테마별 했음/하고싶음 개수. 홈의 현황 칸에서 쓴다. */
+export async function countAllThemes(): Promise<
+  Record<ThemeKey, Record<EntryStatus, number>>
+> {
+  const rows = await prisma.entry.groupBy({
+    by: ["theme", "status"],
+    _count: { _all: true },
+  });
+
+  const counts = Object.fromEntries(
+    THEME_KEYS.map((key) => [key, { DONE: 0, WISHLIST: 0 }]),
+  ) as Record<ThemeKey, Record<EntryStatus, number>>;
+
+  for (const row of rows) {
+    const theme = row.theme as ThemeKey;
+    if (!(theme in counts)) continue; // 더 이상 쓰지 않는 테마가 남아 있어도 무시한다
+    if (row.status === "DONE" || row.status === "WISHLIST") {
+      counts[theme][row.status] = row._count._all;
+    }
+  }
+  return counts;
+}
+
+/**
+ * 테마를 가로질러 "앞으로 할 것들" 을 모은다.
+ * 사이트의 절반은 함께 할 일을 모아두는 쪽이라 홈에서 같이 보여준다.
+ */
+export async function listUpcoming(take = 6): Promise<EntryView[]> {
+  const entries = await prisma.entry.findMany({
+    where: { status: "WISHLIST" },
+    include: entryInclude,
+    orderBy: { createdAt: "desc" },
+    take,
+  });
+  return entries.map(toView);
 }
