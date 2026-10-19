@@ -53,7 +53,6 @@ export default async function HomePage() {
           <TodayCard
             label="오늘의 곡"
             href={`/entry/${todaysSong.entry.id}`}
-            entryId={todaysSong.entry.id}
             title={todaysSong.entry.title}
             subtitle={todaysSong.entry.subtitle}
             coverImageUrl={todaysSong.entry.coverImageUrl}
@@ -79,7 +78,6 @@ export default async function HomePage() {
           <TodayCard
             label="추천 코너"
             href={`/entry/${todaysBook.entry.id}`}
-            entryId={todaysBook.entry.id}
             title={todaysBook.entry.title}
             subtitle={todaysBook.entry.subtitle}
             coverImageUrl={todaysBook.entry.coverImageUrl}

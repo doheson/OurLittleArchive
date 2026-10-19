@@ -8,7 +8,6 @@ import { PreviewPlayer } from "@/components/music/preview-player";
 export function TodayCard({
   label,
   href,
-  entryId,
   title,
   subtitle,
   coverImageUrl,
@@ -20,7 +19,6 @@ export function TodayCard({
 }: {
   label: string;
   href: string;
-  entryId: string;
   title: string;
   subtitle: string | null;
   coverImageUrl: string | null;
@@ -67,7 +65,6 @@ export function TodayCard({
         )}
       </div>
 
-      <span className="sr-only">{entryId}</span>
     </section>
   );
 }
