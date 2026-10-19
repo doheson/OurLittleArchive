@@ -103,7 +103,7 @@ export default async function HomePage() {
         {recent.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-ink-muted">
             {user
-              ? "아직 아무것도 없어요. 아래에서 테마를 고르고 첫 기록을 남겨보자."
+              ? "아직 아무것도 없어요. 아래에서 테마를 고르고 첫 기록을 남겨 보세요."
               : "아직 아무것도 없어요."}
           </p>
         ) : (
