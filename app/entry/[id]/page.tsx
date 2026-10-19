@@ -193,6 +193,32 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
         </div>
       </header>
 
+      {metaRows.length > 0 && (
+        <section className="card rounded-xl p-4">
+          <h2 className="mb-3 text-sm font-semibold text-ink-muted">{theme.label} 정보</h2>
+          <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
+            {metaRows.map((row) => (
+              <div key={row.label} className="flex justify-between gap-3 text-sm">
+                <dt className="text-ink-muted">{row.label}</dt>
+                <dd className="text-right">{displayMetaValue(row.value)}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
+      {entry.note && (
+        <section className="card rounded-xl p-4">
+          <h2 className="mb-2 text-sm font-semibold text-ink-muted">{theme.noteLabel}</h2>
+          {/* 누가 쓴 글인지 헷갈리지 않게 이름을 먼저 보여줘요. */}
+          <p className="text-sm">
+            <span className="font-semibold">{entry.createdBy.displayName}</span>
+            <span className="text-ink-muted"> {theme.noteVerb}</span>
+          </p>
+          <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap">{entry.note}</p>
+        </section>
+      )}
+
       {/*
         추천으로 올라갔던 기록이에요. 추천할 때 적은 이유가 대문에만 보이고
         정작 항목으로 들어오면 사라져서, 여기서도 읽을 수 있게 뒀어요.
@@ -210,7 +236,8 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
                     추천 · {formatKoreanDate(pick.pickedOn)}
                   </span>
                 </p>
-                {pick.comment && (
+                {/* 항목의 한마디와 같은 글이면 위에서 이미 읽었으니 또 보여주지 않아요. */}
+                {pick.comment && pick.comment !== entry.note && (
                   <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap">
                     {pick.comment}
                   </p>
@@ -218,27 +245,6 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
               </li>
             ))}
           </ul>
-        </section>
-      )}
-
-      {metaRows.length > 0 && (
-        <section className="card rounded-xl p-4">
-          <h2 className="mb-3 text-sm font-semibold text-ink-muted">{theme.label} 정보</h2>
-          <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
-            {metaRows.map((row) => (
-              <div key={row.label} className="flex justify-between gap-3 text-sm">
-                <dt className="text-ink-muted">{row.label}</dt>
-                <dd className="text-right">{displayMetaValue(row.value)}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
-
-      {entry.note && (
-        <section className="card rounded-xl p-4">
-          <h2 className="mb-2 text-sm font-semibold text-ink-muted">메모</h2>
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{entry.note}</p>
         </section>
       )}
 

@@ -109,14 +109,25 @@ export async function saveTrack(_prev: ActionResult, formData: FormData): Promis
           externalId: track.trackId,
         },
       },
-      // 이미 있던 곡이면 메타만 최신으로 맞춘다.
-      // 제목을 손으로 고쳐둔 경우가 있어 title 과 status 는 건드리지 않는다.
-      update: { coverImageUrl: track.artworkUrl, metaJson },
+      /*
+        이미 있던 곡이면 메타만 최신으로 맞춰요.
+        제목을 손으로 고쳐둔 경우가 있어 title 과 status 는 건드리지 않아요.
+        한마디는 새로 적었을 때만 바꿔요. 비워둔 채 다시 고른다고 해서
+        전에 적어둔 글이 지워지면 안 되니까요.
+      */
+      update: {
+        coverImageUrl: track.artworkUrl,
+        metaJson,
+        ...(comment ? { note: comment } : {}),
+      },
       create: {
         theme: "MUSIC",
         status,
         title: track.title,
         subtitle: track.artist,
+        // 한마디는 항목에 담아둬요. 오늘의 추천으로 올리지 않아도
+        // 곡을 열면 읽을 수 있어야 해요.
+        note: comment,
         coverImageUrl: track.artworkUrl,
         externalSource: "ITUNES",
         externalId: track.trackId,

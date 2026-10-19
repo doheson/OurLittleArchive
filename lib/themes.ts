@@ -137,6 +137,10 @@ export type ThemeConfig = {
   hasFavorite: boolean;
   /** 날짜별 추천 코너가 있는가 */
   hasDailyPick: boolean;
+  /** 항목에 적어두는 글의 이름. 음악·독서는 "한마디", 나머지는 "메모" */
+  noteLabel: string;
+  /** 그 글을 쓴 사람을 뭐라고 부를지. "하경 고름", "도희 추천" 처럼 쓴다 */
+  noteVerb: string;
   /** 부제 칸을 쓰는가 (아티스트, 저자, 업체 등) */
   hasSubtitle: boolean;
   /** 커버 이미지를 쓰는가. 끄면 이미지 검색 버튼도 함께 사라진다 */
@@ -170,6 +174,8 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: true,
+    noteLabel: "한마디",
+    noteVerb: "고름",
     hasSubtitle: true,
     hasCover: true,
     hasParticipants: true,
@@ -190,6 +196,8 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
+    noteLabel: "메모",
+    noteVerb: "씀",
     hasSubtitle: true,
     hasCover: true,
     hasParticipants: true,
@@ -211,6 +219,8 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: true,
+    noteLabel: "한마디",
+    noteVerb: "추천",
     hasSubtitle: true,
     hasCover: true,
     hasParticipants: true,
@@ -231,6 +241,8 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
+    noteLabel: "메모",
+    noteVerb: "씀",
     hasSubtitle: false,
     hasCover: false,
     hasParticipants: false,
@@ -251,6 +263,8 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
+    noteLabel: "메모",
+    noteVerb: "씀",
     hasSubtitle: false,
     hasCover: false,
     hasParticipants: true,
@@ -275,6 +289,8 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
+    noteLabel: "메모",
+    noteVerb: "씀",
     hasSubtitle: true,
     hasCover: true,
     hasParticipants: true,

@@ -123,14 +123,24 @@ export async function saveBook(_prev: ActionResult, formData: FormData): Promise
           externalId: book.isbn,
         },
       },
-      // 이미 있던 책이면 상태와 표지/메타만 갱신한다.
-      // 제목은 손으로 고쳐둔 경우가 있어 건드리지 않는다.
-      update: { status, coverImageUrl: book.thumbnail, metaJson },
+      /*
+        이미 있던 책이면 상태와 표지/메타만 갱신해요.
+        제목은 손으로 고쳐둔 경우가 있어 건드리지 않아요.
+        한마디는 새로 적었을 때만 바꿔요.
+      */
+      update: {
+        status,
+        coverImageUrl: book.thumbnail,
+        metaJson,
+        ...(comment ? { note: comment } : {}),
+      },
       create: {
         theme: "BOOK",
         status,
         title: book.title,
         subtitle,
+        // 추천 코너에 올리지 않아도 책을 열면 읽을 수 있게 항목에 담아둬요.
+        note: comment,
         coverImageUrl: book.thumbnail,
         externalSource: "KAKAO_BOOK",
         externalId: book.isbn,
