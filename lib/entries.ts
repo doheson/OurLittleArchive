@@ -248,11 +248,16 @@ export async function listSubtitleSuggestions(
   theme: ThemeKey,
   take = 30,
 ): Promise<string[]> {
-  const rows = await prisma.entry.findMany({
+  /*
+    groupBy 로 묶어요. findMany + distinct 를 쓰면 take 가 먼저 걸리고 중복은
+    그 뒤에 걸러져서, 같은 업체를 여러 번 적었을 때 후보가 몇 개 안 남아요.
+    groupBy 는 DB 에서 묶은 뒤에 자르니까 그런 일이 없어요.
+  */
+  const rows = await prisma.entry.groupBy({
+    by: ["subtitle"],
     where: { theme, subtitle: { not: null } },
-    select: { subtitle: true },
-    distinct: ["subtitle"],
-    orderBy: { createdAt: "desc" },
+    // take 를 쓰려면 orderBy 가 있어야 해요. 최종 정렬은 아래에서 한글 기준으로 다시 해요.
+    orderBy: { subtitle: "asc" },
     take,
   });
 
