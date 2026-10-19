@@ -252,7 +252,7 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasFavorite: true,
     hasDailyPick: false,
     hasSubtitle: false,
-    hasCover: true,
+    hasCover: false,
     hasParticipants: true,
     hasDate: false,
     // 보드게임의 한 종류라 장소를 따로 적지 않는다. 어디서 했는지가 아니라

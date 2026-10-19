@@ -266,3 +266,23 @@ export async function listSubtitleSuggestions(
     .filter((value): value is string => Boolean(value && value.trim()))
     .sort((a, b) => a.localeCompare(b, "ko"));
 }
+
+/**
+ * 이 항목이 추천으로 올라갔던 기록이에요.
+ *
+ * 추천할 때 적은 이유는 대문에만 보이고 항목으로 들어오면 사라졌어요.
+ * 정작 곡이나 책을 보면서 읽고 싶은 내용이라 상세에서도 보여줘요.
+ * 같은 걸 여러 번 추천할 수도 있어서 최근 순으로 모아 줘요.
+ */
+export async function listPicksForEntry(entryId: string) {
+  return prisma.dailyPick.findMany({
+    where: { entryId },
+    orderBy: { pickedOn: "desc" },
+    select: {
+      id: true,
+      pickedOn: true,
+      comment: true,
+      pickedBy: { select: { id: true, displayName: true } },
+    },
+  });
+}

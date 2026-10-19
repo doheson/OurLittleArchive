@@ -91,7 +91,9 @@ export default async function MusicPage({
               )}
 
               <p className="mt-2 text-xs text-ink-muted">
-                {today.pickedBy.displayName} 고름 · {formatKoreanDate(today.pickedOn)}
+                <span className="font-semibold text-ink">{today.pickedBy.displayName}</span> 고름
+                {" · "}
+                {formatKoreanDate(today.pickedOn)}
               </p>
 
               {typeof today.entry.meta.previewUrl === "string" && (

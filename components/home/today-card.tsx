@@ -12,7 +12,9 @@ export function TodayCard({
   subtitle,
   coverImageUrl,
   comment,
-  byline,
+  picker,
+  pickedOn,
+  pickedVerb,
   previewUrl,
   /** 커버 비율. 앨범은 정사각, 책은 세로로 길다. */
   coverShape = "square",
@@ -23,7 +25,11 @@ export function TodayCard({
   subtitle: string | null;
   coverImageUrl: string | null;
   comment: string | null;
-  byline: string;
+  /** 누가 골랐는지. 이름은 흐리게 두지 않아요 — 둘 중 누구인지가 이 칸의 핵심이에요. */
+  picker: string;
+  pickedOn: string | null;
+  /** "고름" 이나 "추천" 처럼 테마에 맞는 말 */
+  pickedVerb: string;
   previewUrl: string | null;
   coverShape?: "square" | "book";
 }) {
@@ -56,7 +62,10 @@ export function TodayCard({
           </p>
         )}
 
-        <p className="mt-auto pt-2 text-xs text-ink-muted">{byline}</p>
+        <p className="mt-auto pt-2 text-xs text-ink-muted">
+          <span className="font-semibold text-ink">{picker}</span> {pickedVerb}
+          {pickedOn && ` · ${pickedOn}`}
+        </p>
 
         {previewUrl && (
           <div className="mt-2">

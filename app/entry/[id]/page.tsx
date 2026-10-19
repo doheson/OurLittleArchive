@@ -8,7 +8,7 @@ import { recommendBook } from "@/app/actions/books";
 import { markPlaceVisited } from "@/app/actions/places";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getEntry } from "@/lib/entries";
+import { getEntry, listPicksForEntry } from "@/lib/entries";
 import { isPhotoUploadAvailable } from "@/lib/storage";
 import { THEME_META_FIELDS } from "@/lib/theme-fields";
 import { THEMES } from "@/lib/themes";
@@ -45,7 +45,11 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
   if (!entry) notFound();
 
   const theme = THEMES[entry.theme];
-  const [user, people] = await Promise.all([getCurrentUser(), getBothUsers()]);
+  const [user, people, picks] = await Promise.all([
+    getCurrentUser(),
+    getBothUsers(),
+    listPicksForEntry(entry.id),
+  ]);
 
   const myFavorite = user
     ? await prisma.favorite.findUnique({
@@ -188,6 +192,34 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
           )}
         </div>
       </header>
+
+      {/*
+        추천으로 올라갔던 기록이에요. 추천할 때 적은 이유가 대문에만 보이고
+        정작 항목으로 들어오면 사라져서, 여기서도 읽을 수 있게 뒀어요.
+      */}
+      {picks.length > 0 && (
+        <section className="card rounded-xl p-4">
+          <h2 className="mb-3 text-sm font-semibold text-ink-muted">추천</h2>
+          <ul className="space-y-3">
+            {picks.map((pick) => (
+              <li key={pick.id}>
+                <p className="text-sm">
+                  <span className="font-medium">{pick.pickedBy.displayName}</span>
+                  <span className="text-ink-muted">
+                    {" "}
+                    추천 · {formatKoreanDate(pick.pickedOn)}
+                  </span>
+                </p>
+                {pick.comment && (
+                  <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap">
+                    {pick.comment}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {metaRows.length > 0 && (
         <section className="card rounded-xl p-4">

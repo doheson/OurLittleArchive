@@ -114,8 +114,10 @@ export default async function BooksPage({
               )}
 
               <p className="mt-2 text-xs text-ink-muted">
-                {recommended.pickedBy.displayName} 추천 ·{" "}
-                {formatKoreanDate(recommended.pickedOn)}
+                <span className="font-semibold text-ink">
+                  {recommended.pickedBy.displayName}
+                </span>{" "}
+                추천 · {formatKoreanDate(recommended.pickedOn)}
               </p>
             </div>
           </div>

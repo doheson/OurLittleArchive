@@ -57,7 +57,9 @@ export default async function HomePage() {
             subtitle={todaysSong.entry.subtitle}
             coverImageUrl={todaysSong.entry.coverImageUrl}
             comment={todaysSong.comment}
-            byline={`${todaysSong.pickedBy.displayName} 고름 · ${formatKoreanDate(todaysSong.pickedOn)}`}
+            picker={todaysSong.pickedBy.displayName}
+            pickedOn={formatKoreanDate(todaysSong.pickedOn)}
+            pickedVerb="고름"
             previewUrl={
               typeof todaysSong.entry.meta.previewUrl === "string"
                 ? todaysSong.entry.meta.previewUrl
@@ -82,7 +84,9 @@ export default async function HomePage() {
             subtitle={todaysBook.entry.subtitle}
             coverImageUrl={todaysBook.entry.coverImageUrl}
             comment={todaysBook.comment}
-            byline={`${todaysBook.pickedBy.displayName} 추천 · ${formatKoreanDate(todaysBook.pickedOn)}`}
+            picker={todaysBook.pickedBy.displayName}
+            pickedOn={formatKoreanDate(todaysBook.pickedOn)}
+            pickedVerb="추천"
             previewUrl={null}
             coverShape="book"
           />
