@@ -79,19 +79,36 @@ function pickIsbn(raw: string | undefined): string | null {
 }
 
 /**
- * 표지는 기본이 작게 온다(R120x174 수준).
- * 주소에 크기가 들어 있으면 두 배로 올려 고해상도 화면에서 흐려지지 않게 한다.
- * 형식이 다르면 원본을 그대로 쓴다.
+ * 표지 주소를 고른다.
+ *
+ * 카카오가 주는 thumbnail 은 120x174 로 작다.
+ * 주소 안의 크기(R120x174)를 키우면 더 큰 이미지가 올 것 같지만, 실제로는 403 이 난다.
+ * 그 주소는 크기가 고정되어 있다.
+ *
+ * 대신 thumbnail 의 fname 쿼리에 원본 이미지 주소가 그대로 들어 있고,
+ * 그쪽은 458x664 정도로 표지로 쓰기에 충분하다. 그래서 fname 을 꺼내 쓴다.
+ *
+ * fname 은 http 로 오는데 운영 환경은 https 라 브라우저가 혼합 콘텐츠로 막는다.
+ * 같은 주소가 https 로도 열리는 것을 확인했으므로 올려서 쓴다.
  */
-function upscaleThumbnail(url: string | undefined): string | null {
-  if (!url) return null;
-  return url.replace(/\/R(\d+)x(\d+)/, (whole, w: string, h: string) => {
-    const width = Number(w) * 2;
-    const height = Number(h) * 2;
-    return Number.isFinite(width) && Number.isFinite(height)
-      ? `/R${width}x${height}`
-      : whole;
-  });
+function pickCoverImage(thumbnail: string | undefined): string | null {
+  if (!thumbnail) return null;
+
+  try {
+    const fname = new URL(thumbnail).searchParams.get("fname");
+    if (!fname) return thumbnail;
+
+    const original = new URL(fname);
+    // 응답에서 온 주소를 그대로 <img> 에 넣게 되므로 스킴을 확인한다.
+    if (original.protocol !== "http:" && original.protocol !== "https:") {
+      return thumbnail;
+    }
+    original.protocol = "https:";
+    return original.toString();
+  } catch {
+    // 주소 형식이 예상과 다르면 원래 썸네일을 그대로 쓴다.
+    return thumbnail;
+  }
 }
 
 function toBook(raw: unknown): KakaoBook | null {
@@ -109,7 +126,7 @@ function toBook(raw: unknown): KakaoBook | null {
     authors: parsed.data.authors?.filter(Boolean) ?? [],
     translators: parsed.data.translators?.filter(Boolean) ?? [],
     publisher: parsed.data.publisher?.trim() || null,
-    thumbnail: upscaleThumbnail(parsed.data.thumbnail),
+    thumbnail: pickCoverImage(parsed.data.thumbnail),
     contents: parsed.data.contents?.trim() || null,
     publishedAt: parsed.data.datetime?.slice(0, 10) ?? null,
     url: parsed.data.url || null,
