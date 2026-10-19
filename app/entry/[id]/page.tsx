@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { deleteEntry, toggleFavorite } from "@/app/actions/entries";
 import { promoteToTodaysPick } from "@/app/actions/music";
 import { recommendBook, toggleHasRead } from "@/app/actions/books";
+import { markPlaceVisited } from "@/app/actions/places";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getEntry } from "@/lib/entries";
@@ -158,6 +159,23 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
                       {iHaveRead ? "안 읽은 걸로" : "다 읽었음"}
                     </SubmitButton>
                   </form>
+                </>
+              )}
+
+              {theme.key === "PLACE" && entry.status === "WISHLIST" && (
+                <>
+                  {([
+                    ["DATE", "데이트로 다녀옴"],
+                    ["TRAVEL", "여행으로 다녀옴"],
+                  ] as const).map(([value, label]) => (
+                    <form key={value} action={markPlaceVisited}>
+                      <input type="hidden" name="entryId" value={entry.id} />
+                      <input type="hidden" name="bucket" value={value} />
+                      <SubmitButton variant="subtle" className="px-3 py-1.5">
+                        {label}
+                      </SubmitButton>
+                    </form>
+                  ))}
                 </>
               )}
 

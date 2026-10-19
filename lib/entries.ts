@@ -163,3 +163,30 @@ export async function listRecentDailyPicks(theme: ThemeKey, take = 14) {
 
   return picks.map((pick) => ({ ...pick, entry: toView(pick.entry) }));
 }
+
+/**
+ * 공간 테마의 세 분류별 개수.
+ * 화면은 "데이트 / 여행 / 가보고 싶은 곳" 으로 보지만
+ * DB 에는 status 와 subCategory 두 칸으로 나뉘어 있어 여기서 합친다.
+ */
+export async function countPlaceBuckets(): Promise<{
+  DATE: number;
+  TRAVEL: number;
+  WISH: number;
+}> {
+  const rows = await prisma.entry.groupBy({
+    by: ["status", "subCategory"],
+    where: { theme: "PLACE" },
+    _count: { _all: true },
+  });
+
+  const counts = { DATE: 0, TRAVEL: 0, WISH: 0 };
+  for (const row of rows) {
+    if (row.status === "WISHLIST") {
+      counts.WISH += row._count._all;
+    } else if (row.subCategory === "DATE" || row.subCategory === "TRAVEL") {
+      counts[row.subCategory] += row._count._all;
+    }
+  }
+  return counts;
+}

@@ -23,8 +23,8 @@ http://localhost:3000 에서 열린다.
 | `DATABASE_URL` | 개발은 `file:./prisma/dev.db` 그대로 두면 된다 |
 | `AUTH_SECRET` | 세션 쿠키 서명 키. `openssl rand -base64 32` 결과를 넣는다 |
 | `SEED_USER_A_*` / `SEED_USER_B_*` | 두 사람의 slug / 표시 이름 / 비밀번호 |
-| `KAKAO_REST_API_KEY` | 책 검색과 장소 검색에 쓴다 (아직 연동 전) |
-| `NEXT_PUBLIC_KAKAO_JS_KEY` | 지도 표시에 쓴다 (아직 연동 전) |
+| `KAKAO_REST_API_KEY` | 책 검색과 장소 검색에 쓴다 |
+| `NEXT_PUBLIC_KAKAO_JS_KEY` | 지도 표시에 쓴다. REST 키와 **다른 키**다 |
 
 이름이나 비밀번호를 바꾸면 `npm run db:seed` 를 다시 실행한다. upsert 라 기존 기록은 그대로 남는다.
 
@@ -44,6 +44,8 @@ http://localhost:3000 에서 열린다.
 | `lib/music/itunes.ts` | iTunes 곡 검색. 키 없이 쓰고 결과를 캐시한다 |
 | `lib/music/embeds.ts` | 붙여넣은 유튜브/Spotify 링크를 임베드 주소로 바꾼다 |
 | `lib/books/kakao.ts` | 카카오 책 검색. 키가 없으면 안내를 띄운다 |
+| `lib/places/kakao.ts` | 카카오 장소 검색(로컬 API) |
+| `components/places/kakao-maps-loader.ts` | 지도 SDK 로더. 탭을 옮겨도 한 번만 받는다 |
 | `lib/auth.ts` | 세션. 읽기는 누구나, 쓰기는 로그인 |
 
 ### 테마를 추가하려면
@@ -140,6 +142,36 @@ http://localhost:3000 에서 열린다.
 ISBN 으로 중복을 막으므로, "읽고 싶은 책" 에 담아둔 책을 다 읽고 다시 등록해도
 기록이 한 줄로 이어지고 거기 달린 평점과 감상평이 그대로 남는다.
 
+## 공간
+
+세 갈래로 본다: **데이트 갔던 곳 / 여행지 / 가보고 싶은 곳**.
+DB 에는 `status`(DONE/WISHLIST)와 `subCategory`(DATE/TRAVEL) 두 칸으로 나뉘지만,
+쓰는 사람 머릿속에서는 하나의 선택이라 화면에서는 세 가지 중 하나만 고르면 된다.
+변환은 `app/actions/places.ts` 에서 한 번만 한다.
+
+장소 검색은 **카카오 로컬 API**, 지도는 **카카오맵 JavaScript SDK** 다.
+좌표가 함께 저장되어 탭마다 지도에 핀이 찍힌다.
+
+### 설정 (책 검색과 다르다)
+
+장소·지도는 책 검색보다 조건이 하나 더 있다.
+
+1. **카카오맵 켜기** — [내 애플리케이션](https://developers.kakao.com/console/app) 에서 앱을 열고
+   **[카카오맵] > [사용 설정]** 의 상태를 **ON** 으로 바꾼다.
+   켜지 않으면 장소 검색이 403 과 함께
+   `disabled OPEN_MAP_AND_LOCAL service` 를 돌려준다.
+2. **JavaScript 키** — 지도 SDK 는 REST 키가 아니라 **JavaScript 키**를 쓴다.
+   `.env` 의 `NEXT_PUBLIC_KAKAO_JS_KEY` 에 넣는다.
+3. **플랫폼 등록** — 콘솔의 **[플랫폼] > [Web]** 에 `http://localhost:3000` 을 등록한다.
+   등록하지 않으면 지도가 뜨지 않는다.
+
+무료 쿼터는 **개발자 계정에서 처음 카카오맵을 켠 앱에만** 주어진다.
+2026-07-21 에 카카오맵 API 사용 방식과 무료 쿼터 제공 방식이 바뀌었으니,
+현재 수치는 콘솔의 [통계] > [쿼터] 에서 확인한다.
+
+설정이 안 되어 있어도 화면은 깨지지 않는다. 검색창과 지도 자리에 각각 무엇을 해야 하는지
+안내가 뜨고, `직접 입력` 으로 장소를 손수 등록할 수 있다(좌표가 없으면 지도에만 안 찍힌다).
+
 ## 공개 범위
 
 링크를 아는 사람은 볼 수 있고, 기록을 남기려면 로그인해야 한다.
@@ -147,8 +179,7 @@ ISBN 으로 중복을 막으므로, "읽고 싶은 책" 에 담아둔 책을 다
 
 ## 아직 안 한 것
 
-- 카카오 장소 검색과 지도 (공간)
-- 테마별 전용 화면 (베스트 보드게임 진열, 공간 지도)
+- 테마별 전용 화면 (베스트 보드게임 진열, 머더미스터리 각자 기록)
 - 운영 배포 (Postgres 전환, 사진 클라우드 스토리지)
 
 ### Postgres 로 옮길 때
