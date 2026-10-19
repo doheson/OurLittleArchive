@@ -3,11 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteEntry, toggleFavorite } from "@/app/actions/entries";
+import { promoteToTodaysPick } from "@/app/actions/music";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getEntry } from "@/lib/entries";
 import { THEME_META_FIELDS } from "@/lib/theme-fields";
 import { THEMES } from "@/lib/themes";
+import { formatKoreanDate } from "@/lib/date";
+import { MusicPanel } from "@/components/music/music-panel";
 import { PhotoManager } from "@/components/photo-manager";
 import { RatingPanel } from "@/components/rating-panel";
 import { ReviewPanel } from "@/components/review-panel";
@@ -22,16 +25,6 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const entry = await getEntry((await params).id);
   return { title: entry?.title ?? "없는 기록" };
-}
-
-function formatDate(date: Date | null): string | null {
-  if (!date) return null;
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  }).format(date);
 }
 
 /** meta 값을 사람이 읽을 수 있는 문자열로. 필드 타입은 theme-fields 가 알고 있다. */
@@ -57,8 +50,13 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
       })
     : null;
 
-  const date = formatDate(entry.experiencedOn);
+  const date = formatKoreanDate(entry.experiencedOn);
+  // 듣기 영역에서 플레이어로 보여주는 링크는 정보 표에 또 적지 않는다.
+  const handledByPlayer = new Set(
+    theme.key === "MUSIC" ? ["spotifyUrl", "youtubeUrl"] : [],
+  );
   const metaRows = THEME_META_FIELDS[theme.key]
+    .filter((field) => !handledByPlayer.has(field.name))
     .map((field) => ({ label: field.label, value: entry.meta[field.name] }))
     .filter((row) => row.value !== undefined && row.value !== null && row.value !== "");
 
@@ -132,6 +130,15 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
                 고치기
               </Link>
 
+              {theme.key === "MUSIC" && (
+                <form action={promoteToTodaysPick}>
+                  <input type="hidden" name="entryId" value={entry.id} />
+                  <SubmitButton variant="subtle" className="px-3 py-1.5">
+                    오늘의 추천으로
+                  </SubmitButton>
+                </form>
+              )}
+
               {theme.hasFavorite && (
                 <form action={toggleFavorite}>
                   <input type="hidden" name="entryId" value={entry.id} />
@@ -172,6 +179,8 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{entry.note}</p>
         </section>
       )}
+
+      {theme.key === "MUSIC" && <MusicPanel title={entry.title} meta={entry.meta} />}
 
       {theme.hasRating && (
         <RatingPanel

@@ -8,6 +8,7 @@ import { requireUser } from "@/lib/auth";
 import { parseEntryForm, ratingSchema, reviewSchema, validateMeta } from "@/lib/entry-schema";
 import { THEMES, themeKeySchema, type ThemeKey } from "@/lib/themes";
 import { deletePhoto, putPhoto } from "@/lib/storage";
+import { todayKey } from "@/lib/date";
 import { runAction, type ActionResult } from "./result";
 
 /**
@@ -269,12 +270,7 @@ export async function setDailyPick(
       comment: typeof commentRaw === "string" && commentRaw.trim() ? commentRaw.trim() : null,
     });
 
-    // lib/entries.ts 의 조회와 같은 규칙으로 날짜를 UTC 정오에 고정한다.
-    const now = new Date();
-    const today = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12, 0, 0),
-    );
-
+    const today = todayKey();
     await prisma.dailyPick.upsert({
       where: { theme_pickedOn: { theme, pickedOn: today } },
       update: { entryId, pickedById: user.id, comment },

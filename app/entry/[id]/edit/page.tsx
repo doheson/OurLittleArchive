@@ -3,17 +3,12 @@ import { notFound, redirect } from "next/navigation";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
 import { getEntry } from "@/lib/entries";
 import { THEMES } from "@/lib/themes";
+import { toDateInput } from "@/lib/date";
 import { EntryForm } from "@/components/entry-form";
 
 type Params = { id: string };
 
 export const metadata: Metadata = { title: "기록 고치기" };
-
-/** <input type="date"> 가 읽는 형식. 저장할 때 UTC 정오로 맞췄으므로 UTC 로 꺼낸다. */
-function toDateInput(date: Date | null): string | null {
-  if (!date) return null;
-  return date.toISOString().slice(0, 10);
-}
 
 export default async function EditEntryPage({ params }: { params: Promise<Params> }) {
   const entry = await getEntry((await params).id);

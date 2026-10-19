@@ -2,6 +2,7 @@ import type { Prisma } from "./generated/prisma/client";
 import { prisma } from "./db";
 import { parseMeta, type EntryStatus, type ThemeKey } from "./themes";
 import { photoUrl } from "./storage";
+import { toDayKey } from "./date";
 
 /**
  * 화면에서 쓰는 조회 함수들.
@@ -112,12 +113,8 @@ export async function countByStatus(theme: ThemeKey): Promise<Record<EntryStatus
 
 /** 해당 날짜의 추천. 음악의 "오늘 추천" 과 독서의 "추천 코너" 가 공유한다. */
 export async function getDailyPick(theme: ThemeKey, date: Date) {
-  const dayStart = new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0),
-  );
-
   const pick = await prisma.dailyPick.findUnique({
-    where: { theme_pickedOn: { theme, pickedOn: dayStart } },
+    where: { theme_pickedOn: { theme, pickedOn: toDayKey(date) } },
     include: {
       pickedBy: { select: { id: true, slug: true, displayName: true } },
       entry: { include: entryInclude },
@@ -150,4 +147,19 @@ export async function listRecentEntries(take = 12): Promise<EntryView[]> {
     take,
   });
   return entries.map(toView);
+}
+
+/** 지난 추천 목록. 음악의 "그동안 고른 곡" 줄에 쓴다. */
+export async function listRecentDailyPicks(theme: ThemeKey, take = 14) {
+  const picks = await prisma.dailyPick.findMany({
+    where: { theme },
+    orderBy: { pickedOn: "desc" },
+    take,
+    include: {
+      pickedBy: { select: { id: true, slug: true, displayName: true } },
+      entry: { include: entryInclude },
+    },
+  });
+
+  return picks.map((pick) => ({ ...pick, entry: toView(pick.entry) }));
 }

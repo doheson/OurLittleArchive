@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { EntryView } from "@/lib/entries";
 import { THEMES } from "@/lib/themes";
+import { formatKoreanDate } from "@/lib/date";
 import { Stars } from "./stars";
 
 /** 우리 서버에 올린 사진인지. 그런 경우에만 next/image 로 최적화한다. */
@@ -9,21 +10,11 @@ function isUploaded(url: string): boolean {
   return url.startsWith("/api/photos/");
 }
 
-function formatDate(date: Date | null): string | null {
-  if (!date) return null;
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  }).format(date);
-}
-
 /** 목록에 쓰는 카드. 테마와 상관없이 같은 모양을 쓴다. */
 export function EntryCard({ entry }: { entry: EntryView }) {
   const theme = THEMES[entry.theme];
   const cover = entry.coverImageUrl ?? entry.photos[0]?.url ?? null;
-  const date = formatDate(entry.experiencedOn);
+  const date = formatKoreanDate(entry.experiencedOn);
   const participants = entry.participations.map((p) => p.user.displayName);
 
   return (
