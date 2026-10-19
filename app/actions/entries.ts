@@ -259,7 +259,6 @@ export async function toggleFavorite(formData: FormData): Promise<void> {
 const dailyPickSchema = z.object({
   theme: themeKeySchema,
   entryId: z.string().min(1),
-  comment: z.string().max(500).nullable(),
 });
 
 /** 오늘 날짜의 추천을 정한다. 같은 날 다시 호출하면 교체된다. */
@@ -269,18 +268,17 @@ export async function setDailyPick(
 ): Promise<ActionResult> {
   return runAction(async () => {
     const user = await requireUser();
-    const commentRaw = formData.get("comment");
-    const { theme, entryId, comment } = dailyPickSchema.parse({
+    const { theme, entryId } = dailyPickSchema.parse({
       theme: formData.get("theme"),
       entryId: formData.get("entryId"),
-      comment: typeof commentRaw === "string" && commentRaw.trim() ? commentRaw.trim() : null,
     });
 
     const today = todayKey();
+    // 한마디는 항목에 있어요. 여기서는 누가 언제 올렸는지만 남겨요.
     await prisma.dailyPick.upsert({
       where: { theme_pickedOn: { theme, pickedOn: today } },
-      update: { entryId, pickedById: user.id, comment },
-      create: { theme, pickedOn: today, entryId, pickedById: user.id, comment },
+      update: { entryId, pickedById: user.id },
+      create: { theme, pickedOn: today, entryId, pickedById: user.id },
     });
 
     revalidateEntry(theme, entryId);

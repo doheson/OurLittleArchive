@@ -141,15 +141,20 @@ export async function saveTrack(_prev: ActionResult, formData: FormData): Promis
 
     if (asDailyPick) {
       const today = todayKey();
+      /*
+        DailyPick 은 "누가 언제 대문에 올렸는지" 만 남겨요.
+        한마디는 곡을 등록한 사람이 쓴 글이라 Entry 에 있어요.
+        둘을 같이 담아두면, 남이 올린 곡을 대문에 올렸을 때
+        글쓴이가 올린 사람으로 바뀌어 보여요.
+      */
       await prisma.dailyPick.upsert({
         where: { theme_pickedOn: { theme: "MUSIC", pickedOn: today } },
-        update: { entryId: entry.id, pickedById: user.id, comment },
+        update: { entryId: entry.id, pickedById: user.id },
         create: {
           theme: "MUSIC",
           pickedOn: today,
           entryId: entry.id,
           pickedById: user.id,
-          comment,
         },
       });
     }

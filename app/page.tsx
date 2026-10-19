@@ -56,10 +56,11 @@ export default async function HomePage() {
             title={todaysSong.entry.title}
             subtitle={todaysSong.entry.subtitle}
             coverImageUrl={todaysSong.entry.coverImageUrl}
-            comment={todaysSong.comment}
+            comment={todaysSong.entry.note}
+            commentBy={todaysSong.entry.createdBy.displayName}
+            commentVerb="고름"
             picker={todaysSong.pickedBy.displayName}
             pickedOn={formatKoreanDate(todaysSong.pickedOn)}
-            pickedVerb="고름"
             previewUrl={
               typeof todaysSong.entry.meta.previewUrl === "string"
                 ? todaysSong.entry.meta.previewUrl
@@ -83,10 +84,11 @@ export default async function HomePage() {
             title={todaysBook.entry.title}
             subtitle={todaysBook.entry.subtitle}
             coverImageUrl={todaysBook.entry.coverImageUrl}
-            comment={todaysBook.comment}
+            comment={todaysBook.entry.note}
+            commentBy={todaysBook.entry.createdBy.displayName}
+            commentVerb="추천"
             picker={todaysBook.pickedBy.displayName}
             pickedOn={formatKoreanDate(todaysBook.pickedOn)}
-            pickedVerb="추천"
             previewUrl={null}
             coverShape="book"
           />

@@ -16,7 +16,8 @@
     "check:kakao": "node scripts/check-kakao.mjs",
     "db:import-sqlite": "tsx scripts/migrate-sqlite-to-postgres.ts",
     "db:deploy": "prisma migrate deploy",
-    "db:reset-entries": "tsx scripts/reset-entries.ts"
+    "db:reset-entries": "tsx scripts/reset-entries.ts",
+    "db:backfill-notes": "tsx scripts/backfill-notes.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1152.0",

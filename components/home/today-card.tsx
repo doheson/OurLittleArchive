@@ -12,9 +12,10 @@ export function TodayCard({
   subtitle,
   coverImageUrl,
   comment,
+  commentBy,
+  commentVerb,
   picker,
   pickedOn,
-  pickedVerb,
   previewUrl,
   /** 커버 비율. 앨범은 정사각, 책은 세로로 길다. */
   coverShape = "square",
@@ -25,11 +26,13 @@ export function TodayCard({
   subtitle: string | null;
   coverImageUrl: string | null;
   comment: string | null;
-  /** 누가 골랐는지. 이름은 흐리게 두지 않아요 — 둘 중 누구인지가 이 칸의 핵심이에요. */
+  /** 한마디를 쓴 사람. 항목을 등록한 사람이에요. */
+  commentBy: string;
+  /** "고름" 이나 "추천" 처럼 테마에 맞는 말 */
+  commentVerb: string;
+  /** 대문에 올린 사람. 글쓴이와 다를 수 있어요. */
   picker: string;
   pickedOn: string | null;
-  /** "고름" 이나 "추천" 처럼 테마에 맞는 말 */
-  pickedVerb: string;
   previewUrl: string | null;
   coverShape?: "square" | "book";
 }) {
@@ -62,8 +65,18 @@ export function TodayCard({
           </p>
         )}
 
+        {/*
+          글쓴이와 대문에 올린 사람이 다를 수 있어요.
+          남이 등록한 곡을 대문에 올리는 경우가 그래요. 같으면 한 번만 적어요.
+        */}
         <p className="mt-auto pt-2 text-xs text-ink-muted">
-          <span className="font-semibold text-ink">{picker}</span> {pickedVerb}
+          <span className="font-semibold text-ink">{commentBy}</span> {commentVerb}
+          {picker !== commentBy && (
+            <>
+              {" · "}
+              <span className="font-semibold text-ink">{picker}</span> 올림
+            </>
+          )}
           {pickedOn && ` · ${pickedOn}`}
         </p>
 

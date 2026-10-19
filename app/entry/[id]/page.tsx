@@ -220,28 +220,21 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
       )}
 
       {/*
-        추천으로 올라갔던 기록이에요. 추천할 때 적은 이유가 대문에만 보이고
-        정작 항목으로 들어오면 사라져서, 여기서도 읽을 수 있게 뒀어요.
+        대문에 올린 기록이에요.
+        한마디는 항목을 등록한 사람이 쓴 글이라 위에서 따로 보여줘요.
+        여기는 누가 언제 올렸는지만 남겨요. 둘이 다른 사람일 수 있어요.
       */}
       {picks.length > 0 && (
         <section className="card rounded-xl p-4">
-          <h2 className="mb-3 text-sm font-semibold text-ink-muted">추천</h2>
-          <ul className="space-y-3">
+          <h2 className="mb-3 text-sm font-semibold text-ink-muted">대문에 올린 날</h2>
+          <ul className="space-y-1">
             {picks.map((pick) => (
-              <li key={pick.id}>
-                <p className="text-sm">
-                  <span className="font-medium">{pick.pickedBy.displayName}</span>
-                  <span className="text-ink-muted">
-                    {" "}
-                    추천 · {formatKoreanDate(pick.pickedOn)}
-                  </span>
-                </p>
-                {/* 항목의 한마디와 같은 글이면 위에서 이미 읽었으니 또 보여주지 않아요. */}
-                {pick.comment && pick.comment !== entry.note && (
-                  <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap">
-                    {pick.comment}
-                  </p>
-                )}
+              <li key={pick.id} className="text-sm">
+                <span className="font-semibold">{pick.pickedBy.displayName}</span>
+                <span className="text-ink-muted">
+                  {" "}
+                  올림 · {formatKoreanDate(pick.pickedOn)}
+                </span>
               </li>
             ))}
           </ul>

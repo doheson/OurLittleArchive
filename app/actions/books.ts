@@ -162,15 +162,15 @@ export async function saveBook(_prev: ActionResult, formData: FormData): Promise
 
     if (asRecommendation) {
       const today = todayKey();
+      // DailyPick 은 누가 언제 대문에 올렸는지만 남겨요. 한마디는 Entry 에 있어요.
       await prisma.dailyPick.upsert({
         where: { theme_pickedOn: { theme: "BOOK", pickedOn: today } },
-        update: { entryId: entry.id, pickedById: user.id, comment },
+        update: { entryId: entry.id, pickedById: user.id },
         create: {
           theme: "BOOK",
           pickedOn: today,
           entryId: entry.id,
           pickedById: user.id,
-          comment,
         },
       });
     }

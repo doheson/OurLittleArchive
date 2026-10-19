@@ -107,17 +107,29 @@ export default async function BooksPage({
                 <p className="text-sm text-ink-muted">{recommended.entry.subtitle}</p>
               )}
 
-              {recommended.comment && (
+              {recommended.entry.note && (
                 <p className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">
-                  {recommended.comment}
+                  {recommended.entry.note}
                 </p>
               )}
 
+              {/* 한마디를 쓴 사람과 대문에 올린 사람이 다를 수 있어요. */}
               <p className="mt-2 text-xs text-ink-muted">
                 <span className="font-semibold text-ink">
-                  {recommended.pickedBy.displayName}
+                  {recommended.entry.createdBy.displayName}
                 </span>{" "}
-                추천 · {formatKoreanDate(recommended.pickedOn)}
+                추천
+                {recommended.pickedBy.id !== recommended.entry.createdBy.id && (
+                  <>
+                    {" · "}
+                    <span className="font-semibold text-ink">
+                      {recommended.pickedBy.displayName}
+                    </span>{" "}
+                    올림
+                  </>
+                )}
+                {" · "}
+                {formatKoreanDate(recommended.pickedOn)}
               </p>
             </div>
           </div>

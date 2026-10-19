@@ -84,14 +84,27 @@ export default async function MusicPage({
                 <p className="text-ink-muted">{today.entry.subtitle}</p>
               )}
 
-              {today.comment && (
+              {today.entry.note && (
                 <p className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">
-                  {today.comment}
+                  {today.entry.note}
                 </p>
               )}
 
+              {/* 한마디를 쓴 사람과 대문에 올린 사람이 다를 수 있어요. */}
               <p className="mt-2 text-xs text-ink-muted">
-                <span className="font-semibold text-ink">{today.pickedBy.displayName}</span> 고름
+                <span className="font-semibold text-ink">
+                  {today.entry.createdBy.displayName}
+                </span>{" "}
+                고름
+                {today.pickedBy.id !== today.entry.createdBy.id && (
+                  <>
+                    {" · "}
+                    <span className="font-semibold text-ink">
+                      {today.pickedBy.displayName}
+                    </span>{" "}
+                    올림
+                  </>
+                )}
                 {" · "}
                 {formatKoreanDate(today.pickedOn)}
               </p>
