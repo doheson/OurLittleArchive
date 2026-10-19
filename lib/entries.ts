@@ -237,3 +237,27 @@ export async function listUpcoming(take = 6): Promise<EntryView[]> {
   });
   return entries.map(toView);
 }
+
+/**
+ * 그 테마에서 지금까지 쓴 부제 목록이에요.
+ *
+ * 방탈출의 업체/지점처럼 같은 값을 반복해서 적게 되는 칸이 있어요.
+ * 등록 화면에서 고를 수 있게 모아서 넘겨요.
+ */
+export async function listSubtitleSuggestions(
+  theme: ThemeKey,
+  take = 30,
+): Promise<string[]> {
+  const rows = await prisma.entry.findMany({
+    where: { theme, subtitle: { not: null } },
+    select: { subtitle: true },
+    distinct: ["subtitle"],
+    orderBy: { createdAt: "desc" },
+    take,
+  });
+
+  return rows
+    .map((row) => row.subtitle)
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .sort((a, b) => a.localeCompare(b, "ko"));
+}

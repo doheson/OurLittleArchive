@@ -35,10 +35,13 @@ export function EntryForm({
   theme,
   people,
   defaults,
+  subtitleSuggestions = [],
 }: {
   theme: ThemeConfig;
   people: { id: string; displayName: string }[];
   defaults?: EntryFormDefaults;
+  /** 지금까지 쓴 부제들. 방탈출의 업체/지점처럼 반복해서 적는 칸에서 골라 쓸 수 있어요. */
+  subtitleSuggestions?: string[];
 }) {
   const isEdit = Boolean(defaults?.id);
   const [state, formAction] = useActionState(isEdit ? updateEntry : createEntry, ACTION_IDLE);
@@ -49,6 +52,7 @@ export function EntryForm({
   const [title, setTitle] = useState(defaults?.title ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(defaults?.coverImageUrl ?? "");
   const [pickingCover, setPickingCover] = useState(false);
+  const subtitleListId = `subtitle-suggestions-${theme.key}`;
 
   return (
     <form action={formAction} className="space-y-5">
@@ -111,13 +115,32 @@ export function EntryForm({
         />
       </Field>
 
-      <Field label={SUBTITLE_LABELS[theme.key]}>
+      <Field
+        label={SUBTITLE_LABELS[theme.key]}
+        hint={
+          subtitleSuggestions.length > 0
+            ? "전에 적은 곳이 있으면 눌러서 고를 수 있어요"
+            : undefined
+        }
+      >
+        {/*
+          select 가 아니라 datalist 를 써요. 고르는 것도 되고 새로 적는 것도 돼야 해서요.
+          처음 가는 곳은 목록에 없으니까요.
+        */}
         <input
           name="subtitle"
           maxLength={200}
           defaultValue={defaults?.subtitle ?? ""}
+          list={subtitleSuggestions.length > 0 ? subtitleListId : undefined}
           className={fieldClass}
         />
+        {subtitleSuggestions.length > 0 && (
+          <datalist id={subtitleListId}>
+            {subtitleSuggestions.map((value) => (
+              <option key={value} value={value} />
+            ))}
+          </datalist>
+        )}
       </Field>
 
       {theme.hasDate && (

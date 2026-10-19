@@ -182,7 +182,8 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasFavorite: true,
     hasDailyPick: false,
     hasDate: true,
-    hasLocation: true,
+    // 업체/지점(부제)이 어디인지 알려주므로 장소 이름과 주소를 따로 받지 않아요.
+    hasLocation: false,
     hasPhotos: false,
     tracksPerPerson: true,
     tracksRole: false,

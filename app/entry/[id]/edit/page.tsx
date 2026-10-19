@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
-import { getEntry } from "@/lib/entries";
+import { getEntry, listSubtitleSuggestions } from "@/lib/entries";
 import { THEMES } from "@/lib/themes";
 import { toDateInput } from "@/lib/date";
 import { EntryForm } from "@/components/entry-form";
@@ -17,8 +17,11 @@ export default async function EditEntryPage({ params }: { params: Promise<Params
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const people = await getBothUsers();
   const theme = THEMES[entry.theme];
+  const [people, subtitleSuggestions] = await Promise.all([
+    getBothUsers(),
+    listSubtitleSuggestions(theme.key),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -32,6 +35,7 @@ export default async function EditEntryPage({ params }: { params: Promise<Params
       <EntryForm
         theme={theme}
         people={people}
+        subtitleSuggestions={subtitleSuggestions}
         defaults={{
           id: entry.id,
           status: entry.status,

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
 import { themeBySlug } from "@/lib/themes";
+import { listSubtitleSuggestions } from "@/lib/entries";
 import { EntryForm } from "@/components/entry-form";
 
 type Params = { theme: string };
@@ -22,7 +23,10 @@ export default async function NewEntryPage({ params }: { params: Promise<Params>
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const people = await getBothUsers();
+  const [people, subtitleSuggestions] = await Promise.all([
+    getBothUsers(),
+    listSubtitleSuggestions(theme.key),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -31,7 +35,11 @@ export default async function NewEntryPage({ params }: { params: Promise<Params>
         <p className="mt-1 text-sm text-ink-muted">{theme.tagline}</p>
       </header>
 
-      <EntryForm theme={theme} people={people} />
+      <EntryForm
+        theme={theme}
+        people={people}
+        subtitleSuggestions={subtitleSuggestions}
+      />
     </div>
   );
 }
