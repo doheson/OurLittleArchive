@@ -112,7 +112,17 @@ export class MusicSearchError extends Error {
   }
 }
 
-export async function searchTracks(term: string, limit = 12): Promise<ITunesTrack[]> {
+/**
+ * 한 번에 돌려줄 곡 수.
+ * 요청 수는 그대로이고 응답만 길어지므로 분당 제한에는 영향이 없어요.
+ * 제목이 흔한 곡은 12개로는 원하는 게 안 나와서 늘렸어요.
+ */
+const DEFAULT_LIMIT = 30;
+
+export async function searchTracks(
+  term: string,
+  limit = DEFAULT_LIMIT,
+): Promise<ITunesTrack[]> {
   const query = term.trim();
   if (query.length < 2) return [];
 
