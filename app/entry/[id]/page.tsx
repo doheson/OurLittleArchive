@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteEntry, toggleFavorite } from "@/app/actions/entries";
 import { promoteToTodaysPick } from "@/app/actions/music";
+import { recommendBook, toggleHasRead } from "@/app/actions/books";
 import { getBothUsers, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getEntry } from "@/lib/entries";
@@ -51,6 +52,10 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
     : null;
 
   const date = formatKoreanDate(entry.experiencedOn);
+  // 독서에서 "다 읽었음" 버튼의 문구를 정할 때 쓴다.
+  const iHaveRead = user
+    ? entry.participations.some((row) => row.userId === user.id)
+    : false;
   // 듣기 영역에서 플레이어로 보여주는 링크는 정보 표에 또 적지 않는다.
   const handledByPlayer = new Set(
     theme.key === "MUSIC" ? ["spotifyUrl", "youtubeUrl"] : [],
@@ -137,6 +142,23 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
                     오늘의 추천으로
                   </SubmitButton>
                 </form>
+              )}
+
+              {theme.key === "BOOK" && (
+                <>
+                  <form action={recommendBook}>
+                    <input type="hidden" name="entryId" value={entry.id} />
+                    <SubmitButton variant="subtle" className="px-3 py-1.5">
+                      추천 코너에 올리기
+                    </SubmitButton>
+                  </form>
+                  <form action={toggleHasRead}>
+                    <input type="hidden" name="entryId" value={entry.id} />
+                    <SubmitButton variant="subtle" className="px-3 py-1.5">
+                      {iHaveRead ? "안 읽은 걸로" : "다 읽었음"}
+                    </SubmitButton>
+                  </form>
+                </>
               )}
 
               {theme.hasFavorite && (

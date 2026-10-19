@@ -144,7 +144,7 @@ export function EntryForm({
         </div>
       )}
 
-      <Field label="커버 이미지 주소" hint="음악·책은 나중에 검색으로 자동 채워진다">
+      <Field label="커버 이미지 주소" hint="음악과 책은 검색으로 등록하면 자동으로 채워진다">
         <input
           name="coverImageUrl"
           type="url"
