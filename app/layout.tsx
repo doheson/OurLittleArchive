@@ -4,6 +4,7 @@ import "./globals.css";
 import { THEME_LIST } from "@/lib/themes";
 import { getCurrentUser } from "@/lib/auth";
 import { logout } from "@/app/actions/auth";
+import { ThemeNav } from "@/components/theme-nav";
 
 export const metadata: Metadata = {
   title: {
@@ -56,21 +57,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               )}
             </div>
 
-            {/* 테마 수가 적어 가로 스크롤 탭으로 둔다. 모바일에서 한 손으로 넘기기 좋다. */}
-            <nav className="-mx-4 overflow-x-auto px-4 pb-2">
-              <ul className="flex items-center gap-1 text-sm whitespace-nowrap">
-                {THEME_LIST.map((theme) => (
-                  <li key={theme.key}>
-                    <Link
-                      href={`/${theme.slug}`}
-                      className="inline-block rounded-full px-3 py-1.5 text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink"
-                    >
-                      {theme.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <ThemeNav
+              items={THEME_LIST.map((theme) => ({ slug: theme.slug, label: theme.label }))}
+            />
+
           </div>
         </header>
 
