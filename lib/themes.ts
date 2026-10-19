@@ -137,6 +137,12 @@ export type ThemeConfig = {
   hasFavorite: boolean;
   /** 날짜별 추천 코너가 있는가 */
   hasDailyPick: boolean;
+  /** 부제 칸을 쓰는가 (아티스트, 저자, 업체 등) */
+  hasSubtitle: boolean;
+  /** 커버 이미지를 쓰는가. 끄면 이미지 검색 버튼도 함께 사라진다 */
+  hasCover: boolean;
+  /** 누가 함께했는지 고르는 칸을 두는가 */
+  hasParticipants: boolean;
   /** 경험한 날짜를 기록하는가 */
   hasDate: boolean;
   /** 위치와 지도를 쓰는가 */
@@ -164,6 +170,9 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: true,
+    hasSubtitle: true,
+    hasCover: true,
+    hasParticipants: true,
     hasDate: false,
     hasLocation: false,
     hasPhotos: false,
@@ -181,6 +190,9 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
+    hasSubtitle: true,
+    hasCover: true,
+    hasParticipants: true,
     hasDate: true,
     // 업체/지점(부제)이 어디인지 알려주므로 장소 이름과 주소를 따로 받지 않아요.
     hasLocation: false,
@@ -199,6 +211,9 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: true,
+    hasSubtitle: true,
+    hasCover: true,
+    hasParticipants: true,
     hasDate: true,
     hasLocation: false,
     hasPhotos: false,
@@ -216,7 +231,10 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
-    hasDate: true,
+    hasSubtitle: false,
+    hasCover: false,
+    hasParticipants: false,
+    hasDate: false,
     hasLocation: false,
     hasPhotos: false,
     tracksPerPerson: false,
@@ -233,7 +251,10 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
-    hasDate: true,
+    hasSubtitle: false,
+    hasCover: true,
+    hasParticipants: true,
+    hasDate: false,
     // 보드게임의 한 종류라 장소를 따로 적지 않는다. 어디서 했는지가 아니라
     // 어떤 작품을 누가 했는지가 중요하다.
     hasLocation: false,
@@ -254,6 +275,9 @@ export const THEMES: Record<ThemeKey, ThemeConfig> = {
     hasReview: true,
     hasFavorite: true,
     hasDailyPick: false,
+    hasSubtitle: true,
+    hasCover: true,
+    hasParticipants: true,
     hasDate: true,
     hasLocation: true,
     hasPhotos: true,

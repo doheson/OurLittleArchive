@@ -115,6 +115,7 @@ export function EntryForm({
         />
       </Field>
 
+      {theme.hasSubtitle && (
       <Field
         label={SUBTITLE_LABELS[theme.key]}
         hint={
@@ -142,6 +143,7 @@ export function EntryForm({
           </datalist>
         )}
       </Field>
+      )}
 
       {theme.hasDate && (
         <Field label="날짜">
@@ -175,6 +177,7 @@ export function EntryForm({
         </div>
       )}
 
+      {theme.hasCover && (
       <div>
         <div className="mb-1 flex items-baseline justify-between gap-2">
           <span className="text-sm font-semibold text-ink-muted">커버 이미지</span>
@@ -222,7 +225,9 @@ export function EntryForm({
           />
         )}
       </div>
+      )}
 
+      {theme.hasParticipants && (
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink-muted">
           {theme.tracksPerPerson ? "누가 했는지" : "함께한 사람"}
@@ -245,6 +250,7 @@ export function EntryForm({
           ))}
         </div>
       </fieldset>
+      )}
 
       {metaFields.length > 0 && (
         <fieldset className="card rounded-xl p-4">

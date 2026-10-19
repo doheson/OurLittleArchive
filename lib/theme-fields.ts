@@ -44,18 +44,13 @@ export const THEME_META_FIELDS: Record<ThemeKey, MetaField[]> = {
     { name: "pageCount", label: "쪽수", type: "number", min: 1, step: 1 },
     { name: "publishedAt", label: "출간일", type: "text", placeholder: "2024-03" },
   ],
-  BOARD_GAME: [
-    { name: "designer", label: "디자이너", type: "text" },
-    { name: "minPlayers", label: "최소 인원", type: "number", min: 1, step: 1 },
-    { name: "maxPlayers", label: "최대 인원", type: "number", min: 1, step: 1 },
-    { name: "playTimeMin", label: "플레이 시간(분)", type: "number", min: 1, step: 1 },
-    { name: "weight", label: "복잡도", type: "number", min: 1, max: 5, step: 0.1 },
-  ],
+  // 보드게임은 제목만 적어두면 충분해요. 칸을 비워두면 "보드게임 정보" 묶음 자체가 안 나와요.
+  // 나중에 필요해지면 lib/themes.ts 의 boardGameMeta 스키마가 그대로 있으니 되살리면 돼요.
+  BOARD_GAME: [],
   MURDER_MYSTERY: [
     { name: "genre", label: "장르", type: "text" },
-    { name: "playerCount", label: "인원", type: "number", min: 1, step: 1 },
-    // 맡은 캐릭터는 사람마다 달라서 각자 기록(Participation.role)에 적는다.
-    { name: "durationMin", label: "소요 시간(분)", type: "number", min: 1, step: 1 },
+    // 맡은 캐릭터는 사람마다 달라서 각자 기록(Participation.role)에 적어요.
+    // 인원과 소요 시간은 쓰지 않기로 해서 뺐어요.
   ],
   PLACE: [
     { name: "category", label: "분류", type: "text", placeholder: "카페, 전시, 식당…" },
