@@ -223,9 +223,89 @@ npm run check:kakao
 링크를 아는 사람은 볼 수 있고, 기록을 남기려면 로그인해야 한다.
 검색엔진에는 걸리지 않도록 `robots.txt` 와 메타태그로 막아두었다.
 
+## 배포
+
+Vercel + Neon(Postgres) + Cloudflare R2(사진) 조합을 쓴다. 셋 다 무료 범위로 돌아간다.
+
+| | 고른 것 | 무료 범위 |
+| --- | --- | --- |
+| 호스팅 | Vercel | 대역폭 100GB/월. Hobby 는 **비상업용만** 허용된다 |
+| DB | Neon Postgres | 프로젝트당 0.5GB, 컴퓨트 100 CU-시간/월 |
+| 사진 | Cloudflare R2 | 10GB, **이그레스 무료** |
+
+사진은 대역폭을 가장 많이 먹는 부분이라 이그레스가 무료인 R2 를 골랐다.
+R2 는 S3 호환이라 나중에 다른 곳으로 옮겨도 코드는 그대로다.
+
+### 1. Neon (DB)
+
+[neon.com](https://neon.com) 에서 프로젝트를 만들고 **pooled 연결 문자열**을 복사한다.
+host 에 `-pooler` 가 붙은 쪽이다. 서버리스는 연결이 금방 쌓여서 pooled 를 써야 한다.
+
+개발도 같은 Postgres 를 쓴다. 브랜치를 하나 더 만들어 개발용으로 쓰면 된다.
+SQLite 로 개발하고 Postgres 로 배포하면 마이그레이션 기록이 갈라지고,
+로컬에서는 통과하는데 운영에서 깨지는 차이가 생긴다.
+
+```bash
+# .env 의 DATABASE_URL 을 채운 뒤
+npm run db:deploy        # 마이그레이션 적용
+npm run db:seed          # 두 사람 계정 생성
+```
+
+무료 플랜은 5분 쉬면 컴퓨트가 자동으로 멈춘다(해제 불가).
+한참 만에 들어가면 첫 요청이 조금 느린데, 두 사람이 쓰는 사이트에는 문제되지 않는다.
+
+### 2. Cloudflare R2 (사진)
+
+버킷을 만들고 **R2 API 토큰**을 발급해 `.env` 의 `S3_*` 를 채운다.
+
+- `S3_ENDPOINT` — `https://<계정ID>.r2.cloudflarestorage.com`
+- `S3_REGION` — `auto` (R2 는 리전 개념이 없다)
+
+버킷을 공개하거나 도메인을 연결했다면 `PHOTO_PUBLIC_BASE_URL` 에 그 주소를 넣는다.
+채우면 이미지 요청이 서버 함수를 아예 거치지 않는다.
+
+> 운영에서 `S3_*` 가 비어 있으면 업로드가 거부된다.
+> Vercel 은 파일시스템이 휘발성이라, 막아두지 않으면 사진이 조용히 사라진다.
+
+### 3. Vercel
+
+저장소를 연결하고 환경변수를 넣는다.
+
+| 변수 | 비고 |
+| --- | --- |
+| `DATABASE_URL` | Neon pooled 문자열 |
+| `AUTH_SECRET` | `openssl rand -base64 32` |
+| `KAKAO_REST_API_KEY` | 책·장소 검색 |
+| `NEXT_PUBLIC_KAKAO_JS_KEY` | 지도. **빌드 전에** 넣어야 한다 (아래 참고) |
+| `S3_*` | R2 접속 정보 |
+| `PHOTO_PUBLIC_BASE_URL` | 공개 주소를 쓸 때만 |
+
+`SEED_USER_*` 는 운영에 넣지 않아도 된다. 계정은 로컬에서 운영 DB 를 향해
+`npm run db:seed` 를 한 번 돌리면 만들어진다.
+
+**`NEXT_PUBLIC_` 는 빌드 시점에 번들에 박힌다.** 나중에 값을 바꾸면
+재배포해야 반영된다. 지도 키를 나중에 넣었다면 다시 배포한다.
+
+### 4. 배포 후
+
+- 카카오 콘솔의 **[플랫폼] > [Web]** 에 운영 도메인을 추가한다.
+  `http://localhost:3000` 은 지우지 말고 같이 둔다.
+- `npm run check:kakao` 로 세 연동이 살아 있는지 확인한다.
+
+### 기존 데이터 옮기기
+
+개발하면서 SQLite 에 쌓인 기록이 있으면 옮길 수 있다.
+
+```bash
+npm run db:import-sqlite              # prisma/dev.db 에서 읽는다
+```
+
+id 를 그대로 쓰고 이미 있으면 건너뛰므로 여러 번 돌려도 안전하다.
+사진 레코드는 옮기지만 **파일은 따로** `./uploads` 에서 버킷의 같은 키로 올려야 한다.
+
 ## 아직 안 한 것
 
-- 운영 배포 (Postgres 전환, 사진 클라우드 스토리지)
+- 실제 배포 (위 절차를 따라 계정을 만들고 올리는 단계)
 
 ### Postgres 로 옮길 때
 

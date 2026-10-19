@@ -13,7 +13,9 @@
     "db:generate": "prisma generate",
     "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit",
-    "check:kakao": "node scripts/check-kakao.mjs"
+    "check:kakao": "node scripts/check-kakao.mjs",
+    "db:import-sqlite": "tsx scripts/migrate-sqlite-to-postgres.ts",
+    "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1152.0",
@@ -29,7 +31,7 @@
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
+    "@types/node": "^26.6.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
