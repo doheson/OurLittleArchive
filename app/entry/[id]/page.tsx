@@ -122,6 +122,13 @@ export default async function EntryPage({ params }: { params: Promise<Params> })
           {entry.subtitle && <p className="text-ink-muted">{entry.subtitle}</p>}
 
           <dl className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-muted">
+            {/* 누가 고른(등록한) 건지 한마디가 없어도 보이게 해요. */}
+            <div>
+              <span className="font-semibold text-ink">
+                {entry.createdBy.displayName}
+              </span>{" "}
+              {theme.addedVerb}
+            </div>
             {date && <div>{date}</div>}
             {entry.locationName && <div>{entry.locationName}</div>}
             {entry.participations.length > 0 && (
