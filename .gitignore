@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# 설정 항목을 알려주는 예시 파일은 올린다. 실제 값이 든 .env 는 위 규칙대로 제외된다.
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +41,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local database & uploads
+prisma/dev.db
+prisma/dev.db-journal
+/uploads
+
+# prisma generated client
+/lib/generated
+
+# IntelliJ 개인 작업 상태 (workspace.xml 등)
+.idea/

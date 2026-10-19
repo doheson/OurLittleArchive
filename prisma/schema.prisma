@@ -1,0 +1,171 @@
+// OurLittleArchive — 커플 기록 아카이브
+//
+// 설계 메모
+// - 테마(음악/방탈출/독서/보드게임/머더미스터리/공간)는 모두 Entry 하나로 표현한다.
+//   테마마다 다른 필드는 metaJson 에 넣고 lib/themes.ts 의 Zod 스키마로 검증한다.
+// - enum 과 Json 타입은 SQLite 에서 제약이 있어 String 으로 두었다.
+//   덕분에 운영 DB를 Postgres 로 바꿀 때 provider 한 줄만 고치면 된다.
+//   허용값의 단일 출처는 lib/themes.ts 이다.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// 두 사람만 존재한다. prisma/seed.ts 에서 생성한다.
+model User {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  displayName  String
+  avatarUrl    String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  createdEntries Entry[]         @relation("EntryCreatedBy")
+  participations Participation[]
+  ratings        Rating[]
+  reviews        Review[]
+  favorites      Favorite[]
+  dailyPicks     DailyPick[]
+}
+
+/// 모든 테마의 항목. "했음(DONE)" 과 "하고싶음(WISHLIST)" 을 status 로 구분한다.
+model Entry {
+  id          String  @id @default(cuid())
+  theme       String
+  status      String
+  /// 공간 테마에서 DATE(데이트) / TRAVEL(여행) 을 나눈다.
+  subCategory String?
+
+  title    String
+  /// 아티스트, 저자, 퍼블리셔, 지점명 등 테마별 부제
+  subtitle String?
+  /// 둘이 공유하는 메모. 개인 감상평(Review)과는 별개다.
+  note     String?
+
+  coverImageUrl  String?
+  externalId     String?
+  externalSource String?
+
+  experiencedOn DateTime?
+  locationName  String?
+  address       String?
+  lat           Float?
+  lng           Float?
+
+  /// 테마별 추가 필드. JSON 문자열이며 lib/themes.ts 의 스키마로 파싱한다.
+  metaJson String?
+
+  createdById String
+  createdBy   User     @relation("EntryCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  participations Participation[]
+  ratings        Rating[]
+  reviews        Review[]
+  photos         Photo[]
+  favorites      Favorite[]
+  dailyPicks     DailyPick[]
+
+  @@unique([theme, externalSource, externalId])
+  @@index([theme, status])
+  @@index([theme, experiencedOn])
+}
+
+/// 누가 이 항목을 경험했는지. 방탈출은 보통 둘 다, 머더미스터리는 각자인 경우가 많다.
+/// 덕분에 "둘이 같이 한 것 / 나만 한 것" 을 구분해 보여줄 수 있다.
+model Participation {
+  id      String @id @default(cuid())
+  entryId String
+  userId  String
+
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, userId])
+  @@index([userId])
+}
+
+/// 각자 매기는 평점. 두 사람 점수를 나란히 비교한다.
+model Rating {
+  id      String @id @default(cuid())
+  entryId String
+  userId  String
+  score   Float
+
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([entryId, userId])
+}
+
+/// 각자 남기는 감상평. 한쪽만 경험한 작품은 isSpoiler 로 가려 둔다.
+model Review {
+  id        String  @id @default(cuid())
+  entryId   String
+  userId    String
+  body      String
+  isSpoiler Boolean @default(false)
+
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([entryId, userId])
+}
+
+/// 각자의 베스트. 보드게임 베스트에서 쓰지만 테마 구분이 있어 다른 테마에도 그대로 쓴다.
+model Favorite {
+  id      String @id @default(cuid())
+  userId  String
+  entryId String
+  theme   String
+  rank    Int    @default(1)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, theme, rank])
+  @@unique([userId, entryId])
+}
+
+/// 날짜별 추천. 음악의 "오늘 추천" 과 독서의 "추천 코너" 가 이걸 공유한다.
+model DailyPick {
+  id         String   @id @default(cuid())
+  theme      String
+  pickedOn   DateTime
+  entryId    String
+  pickedById String
+  comment    String?
+
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  pickedBy  User     @relation(fields: [pickedById], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([theme, pickedOn])
+  @@index([theme, pickedOn])
+}
+
+model Photo {
+  id        String @id @default(cuid())
+  entryId   String
+  /// 스토리지 키. lib/storage.ts 가 로컬/클라우드 어느 쪽이든 이 키로 찾는다.
+  key       String
+  width     Int?
+  height    Int?
+  caption   String?
+  sortOrder Int    @default(0)
+
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([entryId, sortOrder])
+}
