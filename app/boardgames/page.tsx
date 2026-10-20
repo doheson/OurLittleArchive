@@ -75,6 +75,7 @@ export default async function BoardGamesPage({
           columns={columns}
           currentUserId={user?.id ?? null}
           emptyHint="게임 상세에서 ‘내 베스트에 넣기’를 누르면 여기에 쌓여요."
+          showCover={THEME.hasCover}
         />
       </section>
 

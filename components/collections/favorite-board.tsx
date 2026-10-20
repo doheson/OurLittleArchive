@@ -28,10 +28,13 @@ export function FavoriteBoard({
   columns,
   currentUserId,
   emptyHint,
+  showCover = true,
 }: {
   columns: FavoriteColumn[];
   currentUserId: string | null;
   emptyHint: string;
+  /** 커버를 쓰지 않는 테마(보드게임)는 빈 네모만 남아서 꺼 둬요. */
+  showCover?: boolean;
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -57,18 +60,19 @@ export function FavoriteBoard({
                       {index + 1}
                     </span>
 
-                    {item.coverImageUrl ? (
-                      // 손으로 넣은 임의 주소가 올 수 있어 일반 img 로 그린다.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.coverImageUrl}
-                        alt=""
-                        loading="lazy"
-                        className="size-10 shrink-0 rounded bg-surface-muted object-cover"
-                      />
-                    ) : (
-                      <span className="size-10 shrink-0 rounded bg-surface-muted" />
-                    )}
+                    {showCover &&
+                      (item.coverImageUrl ? (
+                        // 손으로 넣은 임의 주소가 올 수 있어 일반 img 로 그린다.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.coverImageUrl}
+                          alt=""
+                          loading="lazy"
+                          className="size-10 shrink-0 rounded bg-surface-muted object-cover"
+                        />
+                      ) : (
+                        <span className="size-10 shrink-0 rounded bg-surface-muted" />
+                      ))}
 
                     <Link
                       href={`/entry/${item.entryId}`}
