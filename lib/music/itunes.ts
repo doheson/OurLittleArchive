@@ -84,6 +84,109 @@ function toTrack(raw: unknown): ITunesTrack | null {
   };
 }
 
+
+/** 검색어를 의미 있는 토막으로 나눠요. 한 글자는 걸러요. */
+function queryTokens(query: string): string[] {
+  return query
+    .split(/\s+/)
+    .map((part) => part.trim().toLowerCase())
+    .filter((part) => part.length >= 2);
+}
+
+/**
+ * 일반 검색이 끝내 못 찾아준 검색어 토막을 추려요.
+ *
+ * 제목에도 아티스트명에도 안 걸린 토막이 "찾던 건데 안 나온 것" 이에요.
+ * 되짚기는 이 토막만 기준으로 삼아요. 전체 토막으로 하면
+ * "BIG Naughty Hachiko" 에서 아티스트명이 긴 탓에 다른 곡의 피처링 표기가
+ * 더 높은 점수를 받아, 정작 Hachiko 가 뒤로 밀려요.
+ */
+function missingTokens(tracks: ITunesTrack[], tokens: string[]): string[] {
+  return tokens.filter(
+    (token) =>
+      !tracks.some(
+        (track) =>
+          track.title.toLowerCase().includes(token) ||
+          track.artist.toLowerCase().includes(token),
+      ),
+  );
+}
+
+/** 제목이 검색어와 얼마나 맞는지. 긴 토막이 걸릴수록 높아요. */
+function score(title: string, tokens: string[]): number {
+  const lower = title.toLowerCase();
+  return tokens.reduce(
+    (sum, token) => (lower.includes(token) ? sum + token.length : sum),
+    0,
+  );
+}
+
+/**
+ * 아티스트 목록에서 되짚어요.
+ *
+ * iTunes 의 검색 색인에 없는 곡이 있어요. 빅나티의 Hachiko 가 그랬어요.
+ * 제목으로도 아티스트명을 같이 넣어도 100위 안에 안 나오는데,
+ * 아티스트 id 로 카탈로그를 받으면 멀쩡히 들어 있어요.
+ * 그래서 일반 검색이 빗나갔을 때만 이 경로로 한 번 더 찾아봐요.
+ * 매번 하면 요청이 세 배가 되어 분당 제한에 걸려요.
+ */
+async function searchViaArtistCatalog(
+  query: string,
+  tokens: string[],
+): Promise<ITunesTrack[]> {
+  if (tokens.length === 0) return [];
+
+  try {
+    const artistUrl = new URL(SEARCH_ENDPOINT);
+    artistUrl.searchParams.set("term", query);
+    artistUrl.searchParams.set("entity", "musicArtist");
+    artistUrl.searchParams.set("limit", "1");
+
+    const artistResponse = await fetch(artistUrl, {
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      headers: { Accept: "application/json" },
+    });
+    if (!artistResponse.ok) return [];
+
+    const artistPayload = JSON.parse(await artistResponse.text()) as {
+      results?: { artistId?: number }[];
+    };
+    const artistId = artistPayload.results?.[0]?.artistId;
+    if (!artistId) return [];
+
+    const lookupUrl = new URL("https://itunes.apple.com/lookup");
+    lookupUrl.searchParams.set("id", String(artistId));
+    lookupUrl.searchParams.set("entity", "song");
+    lookupUrl.searchParams.set("limit", "200");
+
+    const lookupResponse = await fetch(lookupUrl, {
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      headers: { Accept: "application/json" },
+    });
+    if (!lookupResponse.ok) return [];
+
+    const lookupPayload = JSON.parse(await lookupResponse.text()) as { results?: unknown[] };
+
+    return (lookupPayload.results ?? [])
+      .map(toTrack)
+      .filter((track): track is ITunesTrack => track !== null)
+      // 그 아티스트의 전곡이 아니라, 검색어가 제목에 들어간 것만 보여줘요.
+      .filter((track) =>
+        tokens.some((token) => track.title.toLowerCase().includes(token)),
+      )
+      /*
+        가장 긴 토막이 제목에 든 곡을 앞에 둬요.
+        "BIG Naughty Hachiko" 처럼 아티스트명이 섞이면 "naughty" 가
+        다른 곡 제목(피처링 표기)에도 걸려서, 정작 찾던 Hachiko 가 뒤로 밀려요.
+        긴 토막일수록 곡 제목일 가능성이 높아요.
+      */
+      .sort((a, b) => score(b.title, tokens) - score(a.title, tokens));
+  } catch {
+    // 되짚기가 실패해도 일반 검색 결과는 그대로 보여줘요.
+    return [];
+  }
+}
+
 const cache = new Map<string, { at: number; tracks: ITunesTrack[] }>();
 
 function readCache(key: string): ITunesTrack[] | null {
@@ -172,6 +275,20 @@ export async function searchTracks(
     .map(toTrack)
     .filter((track): track is ITunesTrack => track !== null);
 
-  writeCache(cacheKey, tracks);
-  return tracks;
+  const tokens = queryTokens(query);
+  const missing = missingTokens(tracks, tokens);
+  let merged = tracks;
+
+  if (missing.length > 0) {
+    const extra = await searchViaArtistCatalog(query, missing);
+    if (extra.length > 0) {
+      // 검색으로 못 찾은 곡을 앞에 둬요. 찾던 게 그쪽일 가능성이 높아요.
+      const seen = new Set(tracks.map((track) => track.trackId));
+      merged = [...extra.filter((track) => !seen.has(track.trackId)), ...tracks];
+    }
+  }
+
+  const result = merged.slice(0, limit);
+  writeCache(cacheKey, result);
+  return result;
 }
