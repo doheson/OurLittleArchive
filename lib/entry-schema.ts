@@ -161,16 +161,6 @@ export const ratingSchema = z.object({
   score: z.number().min(0.5).max(5).multipleOf(0.5),
 });
 
-/**
- * 등록 폼에서 바로 매긴 평점이에요. 안 매기고 등록할 수도 있어서 비어 있으면 null 이에요.
- * 상세 화면의 setRating 과 같은 0.5 단위를 써요.
- */
-export function parseInitialScore(formData: FormData): number | null {
-  const raw = numberOrNull(formData.get("score"));
-  if (raw == null) return null;
-  return ratingSchema.shape.score.parse(raw);
-}
-
 export const reviewSchema = z.object({
   entryId: z.string().min(1),
   body: z.string().min(1, "감상평을 입력해 주세요.").max(5000),

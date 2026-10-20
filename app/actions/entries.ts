@@ -5,14 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import {
-  mergeMeta,
-  parseEntryForm,
-  parseInitialScore,
-  ratingSchema,
-  reviewSchema,
-  validateMeta,
-} from "@/lib/entry-schema";
+import { mergeMeta, parseEntryForm, ratingSchema, reviewSchema, validateMeta } from "@/lib/entry-schema";
 import { THEMES, themeKeySchema, type ThemeKey } from "@/lib/themes";
 import { deletePhoto, putPhoto } from "@/lib/storage";
 import { todayKey } from "@/lib/date";
@@ -63,8 +56,6 @@ export async function createEntry(
     const input = parseEntryForm(formData);
     const metaJson = validateMeta(input.theme, input.meta);
     const participantIds = await validParticipantIds(input.participantIds);
-    // 등록하면서 바로 평점을 매길 수 있어요. 안 매기면 null 이고, 나중에 상세에서 매기면 돼요.
-    const score = parseInitialScore(formData);
 
     const entry = await prisma.entry.create({
       data: {
@@ -87,7 +78,6 @@ export async function createEntry(
         ...(participantIds.length
           ? { participations: { create: participantIds.map((userId) => ({ userId })) } }
           : {}),
-        ...(score != null ? { ratings: { create: { userId: user.id, score } } } : {}),
       },
       select: { id: true, theme: true },
     });
