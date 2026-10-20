@@ -6,6 +6,7 @@ import { ACTION_IDLE } from "@/lib/action-result";
 import { SUBTITLE_LABELS, THEME_META_FIELDS, type MetaField } from "@/lib/theme-fields";
 import type { EntryStatus, ThemeConfig } from "@/lib/themes";
 import { CoverPicker } from "./cover-picker";
+import { StarInput } from "./star-input";
 import { SubmitButton } from "./submit-button";
 
 export type EntryFormDefaults = {
@@ -54,6 +55,9 @@ export function EntryForm({
   const [pickingCover, setPickingCover] = useState(false);
   const subtitleListId = `subtitle-suggestions-${theme.key}`;
 
+  // 평점 칸을 보여줄지 정하려고 상태를 들고 있어요. 아직 안 해본 건 매길 게 없으니까요.
+  const [status, setStatus] = useState<EntryStatus>(defaults?.status ?? "DONE");
+
   return (
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="theme" value={theme.key} />
@@ -63,19 +67,20 @@ export function EntryForm({
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink-muted">상태</legend>
         <div className="flex gap-2">
-          {(["DONE", "WISHLIST"] as const).map((status) => (
+          {(["DONE", "WISHLIST"] as const).map((value) => (
             <label
-              key={status}
+              key={value}
               className="flex-1 cursor-pointer rounded-lg border border-border px-3 py-2 text-center text-sm has-checked:border-accent has-checked:bg-accent-soft"
             >
               <input
                 type="radio"
                 name="status"
-                value={status}
-                defaultChecked={(defaults?.status ?? "DONE") === status}
+                value={value}
+                checked={status === value}
+                onChange={() => setStatus(value)}
                 className="sr-only"
               />
-              {theme.statusLabels[status]}
+              {theme.statusLabels[value]}
             </label>
           ))}
         </div>
@@ -263,6 +268,20 @@ export function EntryForm({
             ))}
           </div>
         </fieldset>
+      )}
+
+      {/*
+        등록하면서 바로 내 평점을 매길 수 있어요.
+        상대방 평점과 수정은 상세 화면에서 해요. 그래서 수정 폼에는 안 보여줘요.
+      */}
+      {theme.hasRating && !isEdit && status === "DONE" && (
+        <div>
+          <span className="mb-1 block text-sm font-semibold text-ink-muted">내 평점</span>
+          <StarInput name="score" label="내 평점" />
+          <span className="mt-1 block text-xs text-ink-muted">
+            지금 안 매겨도 괜찮아요. 나중에 상세 화면에서 매길 수 있어요
+          </span>
+        </div>
       )}
 
       <Field label="메모" hint="둘이 함께 보는 메모예요. 각자의 감상평은 상세 화면에서 따로 남겨요">
