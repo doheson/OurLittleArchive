@@ -146,8 +146,7 @@ export async function listFavorites(theme: ThemeKey) {
 /**
  * 홈 화면용. 테마를 가로질러 최근에 "한 것" 을 가져온다.
  *
- * 하고 싶은 것은 listUpcoming 이 따로 가져온다.
- * 둘을 나눠두지 않으면 같은 항목이 홈 한 화면에 두 번 나온다.
+ * 하고 싶은 것은 빼요. 홈은 짧게 두고, 그건 각 테마 화면에서 봐요.
  */
 export async function listRecentEntries(take = 12): Promise<EntryView[]> {
   const entries = await prisma.entry.findMany({
@@ -222,20 +221,6 @@ export async function countAllThemes(): Promise<
     }
   }
   return counts;
-}
-
-/**
- * 테마를 가로질러 "앞으로 할 것들" 을 모은다.
- * 사이트의 절반은 함께 할 일을 모아두는 쪽이라 홈에서 같이 보여준다.
- */
-export async function listUpcoming(take = 6): Promise<EntryView[]> {
-  const entries = await prisma.entry.findMany({
-    where: { status: "WISHLIST" },
-    include: entryInclude,
-    orderBy: { createdAt: "desc" },
-    take,
-  });
-  return entries.map(toView);
 }
 
 /**

@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { formatKoreanDate } from "@/lib/date";
-import {
-  countAllThemes,
-  getDailyPick,
-  listRecentEntries,
-  listUpcoming,
-} from "@/lib/entries";
+import { countAllThemes, getDailyPick, listRecentEntries } from "@/lib/entries";
 import { THEME_LIST } from "@/lib/themes";
 import { EntryCard } from "@/components/entry-card";
 import { TodayCard, TodayEmpty } from "@/components/home/today-card";
@@ -14,17 +9,15 @@ import { TodayCard, TodayEmpty } from "@/components/home/today-card";
 /**
  * 홈.
  *
- * 읽히는 순서를 "오늘 → 최근 → 앞으로 → 테마" 로 잡았다.
- * 이 사이트는 함께한 것과 앞으로 할 것을 같이 모아두는 곳이라,
- * 지나간 기록만 쌓이지 않도록 앞으로 할 것들도 첫 화면에 둔다.
+ * 읽히는 순서를 "오늘 → 최근 → 테마" 로 잡았다.
+ * 첫 화면은 짧게 둔다. 하고 싶은 것들은 각 테마 화면에서 본다.
  */
 export default async function HomePage() {
-  const [user, todaysSong, todaysBook, recent, upcoming, counts] = await Promise.all([
+  const [user, todaysSong, todaysBook, recent, counts] = await Promise.all([
     getCurrentUser(),
     getDailyPick("MUSIC", new Date()),
     getDailyPick("BOOK", new Date()),
-    listRecentEntries(6),
-    listUpcoming(5),
+    listRecentEntries(3),
     countAllThemes(),
   ]);
 
@@ -122,20 +115,6 @@ export default async function HomePage() {
           </ul>
         )}
       </section>
-
-      {/* 앞으로 할 것들 */}
-      {upcoming.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-sm font-semibold text-ink-muted">앞으로 할 것들</h2>
-          <ul className="space-y-2">
-            {upcoming.map((entry) => (
-              <li key={entry.id}>
-                <EntryCard entry={entry} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       {/* 테마별 현황 */}
       <section>
