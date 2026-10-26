@@ -126,6 +126,12 @@ function SearchPane({ onPick }: { onPick: (track: MusicTrack) => void }) {
       )}
 
       {shown.status === "ok" && shown.tracks.length > 0 && (
+        <>
+          {/* 몇 곡이 왔는지 보여줘요. 목록이 짧을 때 이유를 짐작할 수 있게요. */}
+          <p className="text-xs text-ink-muted">
+            {shown.tracks.length}곡 찾았어요
+            {shown.tracks.length < 30 && " · 검색어를 줄이면 더 나와요"}
+          </p>
         <ul className="space-y-2">
           {shown.tracks.map((track) => (
             <li
@@ -159,6 +165,7 @@ function SearchPane({ onPick }: { onPick: (track: MusicTrack) => void }) {
             </li>
           ))}
         </ul>
+        </>
       )}
     </div>
   );

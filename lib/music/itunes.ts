@@ -201,17 +201,8 @@ function writeCache(key: string, tracks: MusicTrack[]): void {
  */
 const DEFAULT_LIMIT = 30;
 
-export async function searchTracks(
-  term: string,
-  limit = DEFAULT_LIMIT,
-): Promise<MusicTrack[]> {
-  const query = term.trim();
-  if (query.length < 2) return [];
-
-  const cacheKey = `${query.toLowerCase()}::${limit}`;
-  const cached = readCache(cacheKey);
-  if (cached) return cached;
-
+/** 검색 요청 한 번. 넓힌 검색어로 다시 부를 수 있도록 따로 떼어 뒀어요. */
+async function fetchSearch(query: string, limit: number): Promise<MusicTrack[]> {
   const url = new URL(SEARCH_ENDPOINT);
   url.searchParams.set("term", query);
   url.searchParams.set("media", "music");
@@ -250,14 +241,57 @@ export async function searchTracks(
     throw new MusicSearchError("음악 검색 결과 형식이 예상과 달라요.");
   }
 
-  const tracks = (parsed.data.results ?? [])
+  return (parsed.data.results ?? [])
     .map(toTrack)
     .filter((track): track is MusicTrack => track !== null);
+}
 
+/**
+ * 검색어가 좁으면 한 토막 줄여 더 받아와요.
+ *
+ * iTunes 는 넣은 말을 모두 만족하는 곡만 줘요. 그래서 말을 보탤수록 결과가 줄어요.
+ * "아이유 밤편지" 는 30곡인데 "아이유 밤편지 라이브" 는 2곡이고,
+ * "잔나비" 는 30곡인데 "잔나비 주저하는" 은 11곡이에요. 직접 세어 본 수예요.
+ *
+ * 정확히 맞은 곡을 앞에 두고, 뒤에 넓힌 결과를 덧붙여요.
+ * 찾던 게 앞에 없으면 이어서 훑어볼 수 있게요.
+ */
+async function broadenSearch(
+  tokens: string[],
+  limit: number,
+  already: MusicTrack[],
+): Promise<MusicTrack[]> {
+  // 마지막 토막을 떼요. 보통 마지막에 덧붙인 말이 결과를 가장 많이 깎아요.
+  const broader = tokens.slice(0, -1).join(" ");
+  if (!broader) return [];
+
+  try {
+    const more = await fetchSearch(broader, limit);
+    const seen = new Set(already.map((track) => track.trackId));
+    return more.filter((track) => !seen.has(track.trackId));
+  } catch {
+    // 넓히기가 실패해도 원래 결과는 그대로 보여줘요.
+    return [];
+  }
+}
+
+export async function searchTracks(
+  term: string,
+  limit = DEFAULT_LIMIT,
+): Promise<MusicTrack[]> {
+  const query = term.trim();
+  if (query.length < 2) return [];
+
+  const cacheKey = `${query.toLowerCase()}::${limit}`;
+  const cached = readCache(cacheKey);
+  if (cached) return cached;
+
+  const tracks = await fetchSearch(query, limit);
   const tokens = queryTokens(query);
-  const missing = missingTokens(tracks, tokens);
   let merged = tracks;
 
+  // 1) 색인에 아예 없는 곡은 아티스트 목록에서 되짚어요.
+  const missing = missingTokens(tracks, tokens);
   if (missing.length > 0) {
     const extra = await searchViaArtistCatalog(query, missing);
     if (extra.length > 0) {
@@ -265,6 +299,11 @@ export async function searchTracks(
       const seen = new Set(tracks.map((track) => track.trackId));
       merged = [...extra.filter((track) => !seen.has(track.trackId)), ...tracks];
     }
+  }
+
+  // 2) 그래도 목록이 짧으면 검색어를 넓혀 채워요. 요청은 한 번만 더 해요.
+  if (merged.length < limit && tokens.length >= 2) {
+    merged = [...merged, ...(await broadenSearch(tokens, limit, merged))];
   }
 
   const result = merged.slice(0, limit);
