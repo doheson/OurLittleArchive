@@ -28,7 +28,7 @@ export default async function PickMusicPage({
       <header>
         <h1 className="text-xl font-semibold tracking-tight">곡 고르기</h1>
         <p className="mt-1 text-sm text-ink-muted">
-          검색해서 고르면 앨범 이미지와 30초 미리듣기가 같이 저장돼요.
+          검색해서 고르거나, 유튜브 링크를 붙여넣으면 앨범 이미지까지 채워져요.
         </p>
       </header>
 

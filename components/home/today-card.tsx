@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PreviewPlayer } from "@/components/music/preview-player";
 
 /**
  * 홈 위쪽의 "오늘" 칸.
@@ -16,7 +15,6 @@ export function TodayCard({
   commentVerb,
   picker,
   pickedOn,
-  previewUrl,
   /** 커버 비율. 앨범은 정사각, 책은 세로로 길다. */
   coverShape = "square",
 }: {
@@ -33,7 +31,6 @@ export function TodayCard({
   /** 대문에 올린 사람. 글쓴이와 다를 수 있어요. */
   picker: string;
   pickedOn: string | null;
-  previewUrl: string | null;
   coverShape?: "square" | "book";
 }) {
   const coverClass =
@@ -79,12 +76,6 @@ export function TodayCard({
           )}
           {pickedOn && ` · ${pickedOn}`}
         </p>
-
-        {previewUrl && (
-          <div className="mt-2">
-            <PreviewPlayer src={previewUrl} label={title} size="sm" />
-          </div>
-        )}
       </div>
 
     </section>

@@ -6,8 +6,15 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { todayKey } from "@/lib/date";
-import { MusicSearchError, searchTracks } from "@/lib/music/itunes";
-import { SEARCH_IDLE, type SearchState } from "@/lib/music/search-state";
+import { searchTracks } from "@/lib/music/itunes";
+import { fetchYouTubeTrack } from "@/lib/music/youtube";
+import { MusicSearchError } from "@/lib/music/track";
+import {
+  LOOKUP_IDLE,
+  SEARCH_IDLE,
+  type LookupState,
+  type SearchState,
+} from "@/lib/music/search-state";
 import { entryStatusSchema } from "@/lib/themes";
 import { mergeApiMeta } from "@/lib/entry-schema";
 import { runAction, type ActionResult } from "./result";
@@ -33,14 +40,36 @@ export async function searchMusicTracks(rawTerm: string): Promise<SearchState> {
   }
 }
 
+/**
+ * 붙여넣은 유튜브 링크에서 곡 정보를 읽어와요.
+ *
+ * iTunes 검색 색인에 없는 곡이 있어요. 그럴 때 유튜브뮤직에서 링크를 복사해 오면
+ * 제목·가수·앨범 이미지가 채워져요. 검색과 달리 한 번만 부르므로 디바운스는 없어요.
+ */
+export async function lookupYouTubeTrack(rawUrl: string): Promise<LookupState> {
+  const url = rawUrl.trim();
+  if (!url) return LOOKUP_IDLE;
+
+  try {
+    return { status: "ok", track: await fetchYouTubeTrack(url) };
+  } catch (error) {
+    if (error instanceof MusicSearchError) {
+      return { status: "error", error: error.message };
+    }
+    console.error("[lookupYouTubeTrack]", error);
+    return { status: "error", error: "유튜브에서 곡 정보를 가져오지 못했어요." };
+  }
+}
+
 const trackSchema = z.object({
+  source: z.enum(["ITUNES", "YOUTUBE"]),
   trackId: z.string().min(1),
   title: z.string().min(1).max(200),
   artist: z.string().min(1).max(200),
   album: z.string().max(200).nullable(),
   artworkUrl: z.string().url().max(2000).nullable(),
-  previewUrl: z.string().url().max(2000).nullable(),
   appleUrl: z.string().url().max(2000).nullable(),
+  youtubeUrl: z.string().url().max(2000).nullable(),
   genre: z.string().max(100).nullable(),
   releasedAt: z.string().max(10).nullable(),
 });
@@ -65,13 +94,14 @@ export async function saveTrack(_prev: ActionResult, formData: FormData): Promis
     const user = await requireUser();
 
     const track = trackSchema.parse({
+      source: formData.get("source"),
       trackId: emptyToNull(formData.get("trackId")),
       title: emptyToNull(formData.get("title")),
       artist: emptyToNull(formData.get("artist")),
       album: emptyToNull(formData.get("album")),
       artworkUrl: emptyToNull(formData.get("artworkUrl")),
-      previewUrl: emptyToNull(formData.get("previewUrl")),
       appleUrl: emptyToNull(formData.get("appleUrl")),
+      youtubeUrl: emptyToNull(formData.get("youtubeUrl")),
       genre: emptyToNull(formData.get("genre")),
       releasedAt: emptyToNull(formData.get("releasedAt")),
     });
@@ -80,15 +110,19 @@ export async function saveTrack(_prev: ActionResult, formData: FormData): Promis
     const asDailyPick = formData.get("asDailyPick") === "on";
     const comment = emptyToNull(formData.get("comment"));
 
-    // 이미 있던 곡이면 손으로 적어둔 유튜브/Spotify 링크를 지우지 않도록 합친다.
+    /*
+      이미 있던 곡이면 손으로 적어둔 유튜브/Spotify 링크를 지우지 않도록 합쳐요.
+      출처(iTunes / 유튜브)까지 묶어서 찾아요. 같은 곡이라도 출처가 다르면
+      id 체계가 달라서 서로 다른 항목이 돼요.
+    */
+    const identity = {
+      theme: "MUSIC" as const,
+      externalSource: track.source,
+      externalId: track.trackId,
+    };
+
     const before = await prisma.entry.findUnique({
-      where: {
-        theme_externalSource_externalId: {
-          theme: "MUSIC",
-          externalSource: "ITUNES",
-          externalId: track.trackId,
-        },
-      },
+      where: { theme_externalSource_externalId: identity },
       select: { metaJson: true },
     });
 
@@ -97,18 +131,12 @@ export async function saveTrack(_prev: ActionResult, formData: FormData): Promis
       album: track.album ?? undefined,
       genre: track.genre ?? undefined,
       releasedAt: track.releasedAt ?? undefined,
-      previewUrl: track.previewUrl ?? undefined,
       appleUrl: track.appleUrl ?? undefined,
+      youtubeUrl: track.youtubeUrl ?? undefined,
     });
 
     const entry = await prisma.entry.upsert({
-      where: {
-        theme_externalSource_externalId: {
-          theme: "MUSIC",
-          externalSource: "ITUNES",
-          externalId: track.trackId,
-        },
-      },
+      where: { theme_externalSource_externalId: identity },
       /*
         이미 있던 곡이면 메타만 최신으로 맞춰요.
         제목을 손으로 고쳐둔 경우가 있어 title 과 status 는 건드리지 않아요.
@@ -129,7 +157,7 @@ export async function saveTrack(_prev: ActionResult, formData: FormData): Promis
         // 곡을 열면 읽을 수 있어야 해요.
         note: comment,
         coverImageUrl: track.artworkUrl,
-        externalSource: "ITUNES",
+        externalSource: track.source,
         externalId: track.trackId,
         metaJson,
         createdById: user.id,

@@ -54,11 +54,6 @@ export default async function HomePage() {
             commentVerb="고름"
             picker={todaysSong.pickedBy.displayName}
             pickedOn={formatKoreanDate(todaysSong.pickedOn)}
-            previewUrl={
-              typeof todaysSong.entry.meta.previewUrl === "string"
-                ? todaysSong.entry.meta.previewUrl
-                : null
-            }
           />
         ) : (
           <TodayEmpty
@@ -82,7 +77,6 @@ export default async function HomePage() {
             commentVerb="추천"
             picker={todaysBook.pickedBy.displayName}
             pickedOn={formatKoreanDate(todaysBook.pickedOn)}
-            previewUrl={null}
             coverShape="book"
           />
         ) : (

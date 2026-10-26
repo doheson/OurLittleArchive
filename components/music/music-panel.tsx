@@ -1,11 +1,10 @@
 import { spotifyEmbedUrl, youtubeEmbedUrl } from "@/lib/music/embeds";
-import { PreviewPlayer } from "./preview-player";
 
 /**
  * 곡 상세의 듣기 영역.
  *
- * iTunes 미리듣기는 30초뿐이라, 유튜브나 Spotify 링크를 적어두면
- * 전곡을 여기서 바로 들을 수 있다. 둘 다 임베드는 키가 필요 없다.
+ * 유튜브나 Spotify 링크가 있으면 전곡을 여기서 바로 들을 수 있어요.
+ * 둘 다 임베드는 키가 필요 없어요.
  */
 export function MusicPanel({
   title,
@@ -14,23 +13,15 @@ export function MusicPanel({
   title: string;
   meta: Record<string, unknown>;
 }) {
-  const previewUrl = typeof meta.previewUrl === "string" ? meta.previewUrl : null;
   const youtube = youtubeEmbedUrl(typeof meta.youtubeUrl === "string" ? meta.youtubeUrl : undefined);
   const spotify = spotifyEmbedUrl(typeof meta.spotifyUrl === "string" ? meta.spotifyUrl : undefined);
   const appleUrl = typeof meta.appleUrl === "string" ? meta.appleUrl : null;
 
-  if (!previewUrl && !youtube && !spotify && !appleUrl) return null;
+  if (!youtube && !spotify && !appleUrl) return null;
 
   return (
     <section className="space-y-4 card rounded-xl p-4">
       <h2 className="text-sm font-semibold text-ink-muted">듣기</h2>
-
-      {previewUrl && (
-        <div>
-          <PreviewPlayer src={previewUrl} label={title} />
-          <p className="mt-1 text-xs text-ink-muted">30초 미리듣기</p>
-        </div>
-      )}
 
       {youtube && (
         <div className="aspect-video overflow-hidden rounded-lg bg-surface-muted">

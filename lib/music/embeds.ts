@@ -6,8 +6,11 @@
  * 곡 상세에서 유튜브 링크를 적어두면 된다.
  */
 
-/** 유튜브 영상 id 만 뽑는다. 주소를 그대로 iframe 에 넣지 않기 위해서다. */
-export function youtubeEmbedUrl(url: string | undefined): string | null {
+/**
+ * 유튜브 영상 id 만 뽑아요. 주소를 그대로 iframe 에 넣지 않기 위해서예요.
+ * 유튜브뮤직(music.youtube.com) 주소도 같은 id 를 써요.
+ */
+export function youtubeVideoId(url: string | undefined): string | null {
   if (!url) return null;
 
   let parsed: URL;
@@ -32,9 +35,14 @@ export function youtubeEmbedUrl(url: string | undefined): string | null {
     }
   }
 
-  // 영상 id 는 영숫자와 -_ 로만 이루어진다. 그 외가 섞였으면 주소를 믿지 않는다.
+  // 영상 id 는 영숫자와 -_ 로만 이루어져요. 그 외가 섞였으면 주소를 믿지 않아요.
   if (!id || !/^[A-Za-z0-9_-]{6,20}$/.test(id)) return null;
-  return `https://www.youtube-nocookie.com/embed/${id}`;
+  return id;
+}
+
+export function youtubeEmbedUrl(url: string | undefined): string | null {
+  const id = youtubeVideoId(url);
+  return id ? `https://www.youtube-nocookie.com/embed/${id}` : null;
 }
 
 /** Spotify 트랙 링크를 임베드 주소로. 키 없이 동작한다. */

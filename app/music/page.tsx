@@ -10,7 +10,6 @@ import {
 } from "@/lib/entries";
 import { ENTRY_STATUSES, THEMES, type EntryStatus } from "@/lib/themes";
 import { EntryCard } from "@/components/entry-card";
-import { PreviewPlayer } from "@/components/music/preview-player";
 
 export const metadata: Metadata = { title: "음악" };
 
@@ -108,16 +107,6 @@ export default async function MusicPage({
                 {" · "}
                 {formatKoreanDate(today.pickedOn)}
               </p>
-
-              {typeof today.entry.meta.previewUrl === "string" && (
-                <div className="mt-4">
-                  <PreviewPlayer
-                    src={today.entry.meta.previewUrl}
-                    label={today.entry.title}
-                  />
-                  <p className="mt-1 text-xs text-ink-muted">30초 미리듣기</p>
-                </div>
-              )}
             </div>
           </div>
         </section>

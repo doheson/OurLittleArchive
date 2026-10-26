@@ -1,36 +1,92 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition } from "react";
-import { saveTrack, searchMusicTracks } from "@/app/actions/music";
-import { SEARCH_IDLE, type SearchState } from "@/lib/music/search-state";
+import { lookupYouTubeTrack, saveTrack, searchMusicTracks } from "@/app/actions/music";
+import {
+  LOOKUP_IDLE,
+  SEARCH_IDLE,
+  type LookupState,
+  type SearchState,
+} from "@/lib/music/search-state";
 import { ACTION_IDLE } from "@/lib/action-result";
-import type { ITunesTrack } from "@/lib/music/itunes";
+import type { MusicTrack } from "@/lib/music/track";
 import { SubmitButton } from "@/components/submit-button";
-import { PreviewPlayer } from "./preview-player";
 
 const DEBOUNCE_MS = 400;
 
 const fieldClass =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent";
 
+type Mode = "search" | "link";
+
 /**
- * 곡을 검색해서 고른 뒤 저장한다.
+ * 곡을 고르는 화면.
  *
- * iTunes 는 한국 곡도 잘 찾지만 제목을 로마자로 돌려준다
- * (밤편지 → Through the Night). 그래서 저장 전에 제목을 고칠 수 있게 두었다.
+ * 두 갈래로 들어와요.
+ * - 검색: iTunes 로 찾아요. 빠르지만 검색 색인에 없는 곡이 가끔 있어요.
+ * - 링크: 유튜브·유튜브뮤직 주소를 붙여넣으면 제목·가수·커버가 채워져요.
+ *   검색으로 안 나오는 곡은 이쪽으로 넣으면 돼요.
+ *
+ * 어느 쪽으로 왔든 고른 뒤의 화면은 같아요.
  */
 export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolean }) {
+  const [mode, setMode] = useState<Mode>("search");
+  const [picked, setPicked] = useState<MusicTrack | null>(null);
+
+  if (picked) {
+    return (
+      <PickedTrackForm
+        track={picked}
+        defaultAsDailyPick={defaultAsDailyPick}
+        onBack={() => setPicked(null)}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex gap-2">
+        {(
+          [
+            ["search", "검색으로 찾기"],
+            ["link", "유튜브 링크로 넣기"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setMode(value)}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm transition-colors ${
+              mode === value
+                ? "bg-accent text-white"
+                : "border border-border text-ink-muted hover:text-ink"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {mode === "search" ? (
+        <SearchPane onPick={setPicked} />
+      ) : (
+        <LinkPane onPick={setPicked} />
+      )}
+    </div>
+  );
+}
+
+function SearchPane({ onPick }: { onPick: (track: MusicTrack) => void }) {
   const [term, setTerm] = useState("");
   const [search, setSearch] = useState<SearchState>(SEARCH_IDLE);
   const [isSearching, startSearch] = useTransition();
-  const [picked, setPicked] = useState<ITunesTrack | null>(null);
 
-  // 검색어가 짧을 때의 표시는 상태를 되돌리지 않고 렌더에서 파생시킨다.
-  // effect 안에서 바로 setState 하면 불필요한 렌더가 연쇄된다.
+  // 검색어가 짧을 때의 표시는 상태를 되돌리지 않고 렌더에서 파생시켜요.
+  // effect 안에서 바로 setState 하면 불필요한 렌더가 연쇄돼요.
   const tooShort = term.trim().length < 2;
   const shown: SearchState = tooShort ? SEARCH_IDLE : search;
 
-  // 입력이 멈춘 뒤에만 부른다. iTunes 는 분당 20회 정도로 제한된다.
+  // 입력이 멈춘 뒤에만 불러요. iTunes 는 분당 20회 정도로 제한돼요.
   useEffect(() => {
     if (tooShort) return;
 
@@ -42,14 +98,6 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
 
     return () => clearTimeout(timer);
   }, [term, tooShort]);
-
-  if (picked) {
-    return <PickedTrackForm
-      track={picked}
-      defaultAsDailyPick={defaultAsDailyPick}
-      onBack={() => setPicked(null)}
-    />;
-  }
 
   return (
     <div className="space-y-4">
@@ -63,7 +111,7 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
           className={fieldClass}
         />
         <span className="mt-1 block text-xs text-ink-muted">
-          한글로 검색해도 찾아줘요. 다만 제목이 영어로 올 수 있어서, 고른 뒤에 고칠 수 있어요.
+          한글로 검색해도 찾아줘요. 제목이 영어로 올 수 있어서, 고른 뒤에 고칠 수 있어요.
         </span>
       </label>
 
@@ -72,7 +120,9 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
       {shown.status === "error" && <p className="text-sm text-accent">{shown.error}</p>}
 
       {shown.status === "ok" && shown.tracks.length === 0 && (
-        <p className="text-sm text-ink-muted">결과가 없어요. 가수 이름을 같이 넣어 보세요.</p>
+        <p className="text-sm text-ink-muted">
+          결과가 없어요. 가수 이름을 같이 넣어 보거나, 위에서 ‘유튜브 링크로 넣기’ 를 써 보세요.
+        </p>
       )}
 
       {shown.status === "ok" && shown.tracks.length > 0 && (
@@ -82,7 +132,7 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
               key={track.trackId}
               className="flex items-center gap-3 card rounded-xl p-3"
             >
-              {/* iTunes CDN 이미지. 썸네일 한 장이라 일반 img 로 충분하다. */}
+              {/* iTunes CDN 이미지. 썸네일 한 장이라 일반 img 로 충분해요. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={track.artworkUrl ?? ""}
@@ -99,13 +149,9 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
                 )}
               </div>
 
-              {track.previewUrl && (
-                <PreviewPlayer src={track.previewUrl} label={track.title} size="sm" />
-              )}
-
               <button
                 type="button"
-                onClick={() => setPicked(track)}
+                onClick={() => onPick(track)}
                 className="shrink-0 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 고르기
@@ -118,12 +164,65 @@ export function TrackSearch({ defaultAsDailyPick }: { defaultAsDailyPick: boolea
   );
 }
 
+function LinkPane({ onPick }: { onPick: (track: MusicTrack) => void }) {
+  const [url, setUrl] = useState("");
+  const [lookup, setLookup] = useState<LookupState>(LOOKUP_IDLE);
+  const [isLoading, startLookup] = useTransition();
+
+  function load() {
+    if (!url.trim()) return;
+    startLookup(async () => {
+      const next = await lookupYouTubeTrack(url);
+      setLookup(next);
+      // 바로 고른 상태로 넘어가요. 한 곡뿐이라 고를 것이 없어요.
+      if (next.status === "ok") onPick(next.track);
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      <label className="block">
+        <span className="mb-1 block text-sm font-semibold text-ink-muted">유튜브 링크</span>
+        <div className="flex gap-2">
+          <input
+            value={url}
+            onChange={(event) => setUrl(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                load();
+              }
+            }}
+            placeholder="https://music.youtube.com/watch?v=..."
+            autoFocus
+            className={fieldClass}
+          />
+          <button
+            type="button"
+            onClick={load}
+            disabled={isLoading || !url.trim()}
+            className="shrink-0 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {isLoading ? "불러오는 중…" : "불러오기"}
+          </button>
+        </div>
+        <span className="mt-1 block text-xs text-ink-muted">
+          유튜브뮤직 앱에서 ‘공유 → 링크 복사’ 로 받은 주소가 제일 깔끔하게 들어와요.
+          일반 유튜브 영상 주소도 돼요.
+        </span>
+      </label>
+
+      {lookup.status === "error" && <p className="text-sm text-accent">{lookup.error}</p>}
+    </div>
+  );
+}
+
 function PickedTrackForm({
   track,
   defaultAsDailyPick,
   onBack,
 }: {
-  track: ITunesTrack;
+  track: MusicTrack;
   defaultAsDailyPick: boolean;
   onBack: () => void;
 }) {
@@ -131,17 +230,21 @@ function PickedTrackForm({
 
   return (
     <form action={formAction} className="space-y-5">
-      {/* 검색 결과를 그대로 넘긴다. 제목만 아래에서 고칠 수 있다. */}
+      {/* 고른 곡을 그대로 넘겨요. 제목과 가수는 아래에서 고칠 수 있어요. */}
+      <input type="hidden" name="source" value={track.source} />
       <input type="hidden" name="trackId" value={track.trackId} />
-      <input type="hidden" name="artist" value={track.artist} />
       <input type="hidden" name="album" value={track.album ?? ""} />
       <input type="hidden" name="artworkUrl" value={track.artworkUrl ?? ""} />
-      <input type="hidden" name="previewUrl" value={track.previewUrl ?? ""} />
       <input type="hidden" name="appleUrl" value={track.appleUrl ?? ""} />
+      <input type="hidden" name="youtubeUrl" value={track.youtubeUrl ?? ""} />
       <input type="hidden" name="genre" value={track.genre ?? ""} />
       <input type="hidden" name="releasedAt" value={track.releasedAt ?? ""} />
 
       <div className="flex items-center gap-4 card rounded-xl p-4">
+        {/*
+          유튜브 썸네일은 가로로 긴데 가운데가 앨범 아트예요.
+          정사각 칸에 object-cover 로 그리면 가운데만 남아 앨범 아트 그대로 보여요.
+        */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={track.artworkUrl ?? ""}
@@ -149,13 +252,11 @@ function PickedTrackForm({
           className="size-24 shrink-0 rounded-lg bg-surface-muted object-cover"
         />
         <div className="min-w-0 flex-1">
-          <p className="font-medium">{track.artist}</p>
-          {track.album && <p className="text-sm text-ink-muted">{track.album}</p>}
-          {track.previewUrl && (
-            <div className="mt-2">
-              <PreviewPlayer src={track.previewUrl} label={track.title} />
-            </div>
-          )}
+          <p className="truncate font-medium">{track.title}</p>
+          {track.album && <p className="truncate text-sm text-ink-muted">{track.album}</p>}
+          <p className="mt-1 text-xs text-ink-muted">
+            {track.source === "YOUTUBE" ? "유튜브에서 가져왔어요" : "iTunes 에서 가져왔어요"}
+          </p>
         </div>
       </div>
 
@@ -165,6 +266,11 @@ function PickedTrackForm({
         <span className="mt-1 block text-xs text-ink-muted">
           한글 제목으로 바꿔 적어도 돼요. 저장할 때 이 제목이 쓰여요.
         </span>
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block text-sm font-semibold text-ink-muted">가수</span>
+        <input name="artist" defaultValue={track.artist} required maxLength={200} className={fieldClass} />
       </label>
 
       <fieldset>

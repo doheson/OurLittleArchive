@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MusicSearchError, type MusicTrack } from "./track";
 
 /**
  * iTunes Search API.
@@ -12,29 +13,14 @@ import { z } from "zod";
  * 2) 분당 20회 정도로 제한된다. 타이핑할 때마다 부르면 금방 막히므로
  *    화면에서 입력을 debounce 하고 여기서 결과를 짧게 캐시한다.
  *
- * Spotify 는 2024-11-27 정책 변경으로 신규 앱이 preview_url 을 받을 수 없다.
- * iTunes 는 미리듣기를 그대로 주기 때문에 여기를 기본으로 쓴다.
+ * 검색에 안 나오는 곡도 있어요. 그때는 유튜브 링크를 붙여넣는 쪽을 쓰면 돼요.
+ * lib/music/youtube.ts 가 그쪽을 맡아요.
  */
 
 const SEARCH_ENDPOINT = "https://itunes.apple.com/search";
 const CACHE_TTL_MS = 10 * 60 * 1000;
 const CACHE_MAX_ENTRIES = 100;
 const REQUEST_TIMEOUT_MS = 8000;
-
-export type ITunesTrack = {
-  /** iTunes 의 trackId. Entry.externalId 로 저장해 같은 곡이 두 번 등록되지 않게 한다. */
-  trackId: string;
-  title: string;
-  artist: string;
-  album: string | null;
-  /** 600x600 으로 키운 앨범 이미지 */
-  artworkUrl: string | null;
-  /** 30초 미리듣기 */
-  previewUrl: string | null;
-  appleUrl: string | null;
-  genre: string | null;
-  releasedAt: string | null;
-};
 
 /** 응답에서 우리가 쓰는 필드만 느슨하게 받는다. 없는 필드가 있어도 검색이 통째로 실패하지 않게 한다. */
 const rawTrackSchema = z.object({
@@ -43,7 +29,6 @@ const rawTrackSchema = z.object({
   artistName: z.string().optional(),
   collectionName: z.string().optional(),
   artworkUrl100: z.string().optional(),
-  previewUrl: z.string().optional(),
   trackViewUrl: z.string().optional(),
   primaryGenreName: z.string().optional(),
   releaseDate: z.string().optional(),
@@ -63,7 +48,7 @@ function upscaleArtwork(url: string | undefined): string | null {
   return url.replace(/\/\d+x\d+bb\.(jpg|png)$/, "/600x600bb.$1");
 }
 
-function toTrack(raw: unknown): ITunesTrack | null {
+function toTrack(raw: unknown): MusicTrack | null {
   const parsed = rawTrackSchema.safeParse(raw);
   if (!parsed.success) return null;
 
@@ -72,13 +57,14 @@ function toTrack(raw: unknown): ITunesTrack | null {
   if (trackId == null || !trackName || !artistName) return null;
 
   return {
+    source: "ITUNES",
     trackId: String(trackId),
     title: trackName,
     artist: artistName,
     album: parsed.data.collectionName ?? null,
     artworkUrl: upscaleArtwork(parsed.data.artworkUrl100),
-    previewUrl: parsed.data.previewUrl ?? null,
     appleUrl: parsed.data.trackViewUrl ?? null,
+    youtubeUrl: null,
     genre: parsed.data.primaryGenreName ?? null,
     releasedAt: parsed.data.releaseDate?.slice(0, 10) ?? null,
   };
@@ -101,7 +87,7 @@ function queryTokens(query: string): string[] {
  * "BIG Naughty Hachiko" 에서 아티스트명이 긴 탓에 다른 곡의 피처링 표기가
  * 더 높은 점수를 받아, 정작 Hachiko 가 뒤로 밀려요.
  */
-function missingTokens(tracks: ITunesTrack[], tokens: string[]): string[] {
+function missingTokens(tracks: MusicTrack[], tokens: string[]): string[] {
   return tokens.filter(
     (token) =>
       !tracks.some(
@@ -133,7 +119,7 @@ function score(title: string, tokens: string[]): number {
 async function searchViaArtistCatalog(
   query: string,
   tokens: string[],
-): Promise<ITunesTrack[]> {
+): Promise<MusicTrack[]> {
   if (tokens.length === 0) return [];
 
   try {
@@ -169,7 +155,7 @@ async function searchViaArtistCatalog(
 
     return (lookupPayload.results ?? [])
       .map(toTrack)
-      .filter((track): track is ITunesTrack => track !== null)
+      .filter((track): track is MusicTrack => track !== null)
       // 그 아티스트의 전곡이 아니라, 검색어가 제목에 들어간 것만 보여줘요.
       .filter((track) =>
         tokens.some((token) => track.title.toLowerCase().includes(token)),
@@ -187,9 +173,9 @@ async function searchViaArtistCatalog(
   }
 }
 
-const cache = new Map<string, { at: number; tracks: ITunesTrack[] }>();
+const cache = new Map<string, { at: number; tracks: MusicTrack[] }>();
 
-function readCache(key: string): ITunesTrack[] | null {
+function readCache(key: string): MusicTrack[] | null {
   const hit = cache.get(key);
   if (!hit) return null;
   if (Date.now() - hit.at > CACHE_TTL_MS) {
@@ -199,20 +185,13 @@ function readCache(key: string): ITunesTrack[] | null {
   return hit.tracks;
 }
 
-function writeCache(key: string, tracks: ITunesTrack[]): void {
+function writeCache(key: string, tracks: MusicTrack[]): void {
   // 가장 오래된 항목부터 버린다. Map 은 삽입 순서를 유지한다.
   if (cache.size >= CACHE_MAX_ENTRIES) {
     const oldest = cache.keys().next().value;
     if (oldest !== undefined) cache.delete(oldest);
   }
   cache.set(key, { at: Date.now(), tracks });
-}
-
-export class MusicSearchError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "MusicSearchError";
-  }
 }
 
 /**
@@ -225,7 +204,7 @@ const DEFAULT_LIMIT = 30;
 export async function searchTracks(
   term: string,
   limit = DEFAULT_LIMIT,
-): Promise<ITunesTrack[]> {
+): Promise<MusicTrack[]> {
   const query = term.trim();
   if (query.length < 2) return [];
 
@@ -273,7 +252,7 @@ export async function searchTracks(
 
   const tracks = (parsed.data.results ?? [])
     .map(toTrack)
-    .filter((track): track is ITunesTrack => track !== null);
+    .filter((track): track is MusicTrack => track !== null);
 
   const tokens = queryTokens(query);
   const missing = missingTokens(tracks, tokens);

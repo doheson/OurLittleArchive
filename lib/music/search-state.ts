@@ -1,4 +1,4 @@
-import type { ITunesTrack } from "./itunes";
+import type { MusicTrack } from "./track";
 
 /**
  * 검색 결과 상태.
@@ -8,7 +8,15 @@ import type { ITunesTrack } from "./itunes";
  */
 export type SearchState =
   | { status: "idle" }
-  | { status: "ok"; term: string; tracks: ITunesTrack[] }
+  | { status: "ok"; term: string; tracks: MusicTrack[] }
   | { status: "error"; term: string; error: string };
 
 export const SEARCH_IDLE: SearchState = { status: "idle" };
+
+/** 붙여넣은 유튜브 링크를 읽어온 결과예요. */
+export type LookupState =
+  | { status: "idle" }
+  | { status: "ok"; track: MusicTrack }
+  | { status: "error"; error: string };
+
+export const LOOKUP_IDLE: LookupState = { status: "idle" };

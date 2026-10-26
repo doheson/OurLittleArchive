@@ -49,8 +49,6 @@ const musicMeta = z.object({
   album: z.string().optional(),
   genre: z.string().optional(),
   releasedAt: z.string().optional(),
-  /** Deezer / iTunes 가 주는 30초 미리듣기 */
-  previewUrl: z.string().url().optional(),
   appleUrl: z.string().url().optional(),
   /** Spotify 는 API 키 없이 임베드만 쓴다 */
   spotifyUrl: z.string().url().optional(),

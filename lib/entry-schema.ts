@@ -172,7 +172,7 @@ export const reviewSchema = z.object({
  *
  * 범용 수정 폼은 lib/theme-fields.ts 에 적힌 칸만 보여준다.
  * 그런데 meta 에는 폼에 없는 값도 들어 있다. 검색 연동이 채운 것들
- * (음악의 artist/previewUrl/appleUrl, 책의 authors 등)이 그렇다.
+ * (음악의 artist/appleUrl/youtubeUrl, 책의 authors 등)이 그렇다.
  * 폼이 보낸 값으로 통째로 덮어쓰면 그 값들이 조용히 사라진다.
  *
  * 그래서 폼이 관리하는 칸만 걷어내고 나머지는 남긴다.
